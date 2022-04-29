@@ -19,7 +19,9 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, IsAuthenticatedOrReadOnly
 
 from Users.models import Doctors, Patients
+from ProfilesActions.models import Notifications
 from .models import Reservations, Comments
+
 from .serializers import *
 
 
@@ -104,10 +106,14 @@ def Reserve(request):
             if GetUser.is_patient == True:
                 
                 DoctorName = request.data['doctor']
+
                 GetDoctorUser = get_user_model().objects.get(username=DoctorName)
                 GetDoctorId = Doctors.objects.get(user=GetDoctorUser.id)
                 
                 Reservations.objects.create(user=CurrentUser, doctor=GetDoctorId)
+                
+                #FIRE~A~NOTIFICATION~TO~THE~DOCTOR
+                Notifications.objects.create(currentuser=CurrentUser, doctor=GetDoctorId, message=CurrentUser.username+" Request an oppointment with you")
 
                 content = {
                     "status":True, 
@@ -148,6 +154,9 @@ def DeleteReserve(request):
                 try:
                     Reservations.objects.get(user=CurrentUser, doctor=GetDoctorId).delete()
                     
+                    #FIRE~A~NOTIFICATION~TO~THE~DOCTOR
+                    Notifications.objects.create(currentuser=CurrentUser, doctor=GetDoctorId, message=CurrentUser.username+" Cancelled his oppointment with you")
+
                     content = {
                         "status":True, 
                         "details":"Reservation Deleted", 
@@ -166,7 +175,7 @@ def DeleteReserve(request):
                     return Response(content, status=status.HTTP_404_NOT_FOUND)
 
             else:
-                content = {"status":False, "details":"You are not patient"}     
+                content = {"status":False, "details":"You are not Patient"}     
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         
         except get_user_model().DoesNotExist:
@@ -196,6 +205,9 @@ def Comment(request):
                 GetDoctorId = Doctors.objects.get(user=GetDoctorUser.id)
                 
                 Comments.objects.create(user=CurrentUser, doctor=GetDoctorId, comment=Comment)
+
+                #FIRE~A~NOTIFICATION~TO~THE~DOCTOR
+                Notifications.objects.create(currentuser=CurrentUser, doctor=GetDoctorId, message=CurrentUser.username +"Commented: "+ Comment)
 
                 content = {
                     "status":True, 

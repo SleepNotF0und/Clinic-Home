@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from Users.models import Doctors, Patients, CustomUser
+from .models import Notifications
 
 
 
@@ -32,4 +33,15 @@ class DrSpecialInfoUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctors
         fields = ['dateofbirth','specialize','price','info']
+
+
+class GetDrNotificationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notifications
+        fields = ['message']
+
+class GetPtNotificationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notifications
+        fields = ['message']
 

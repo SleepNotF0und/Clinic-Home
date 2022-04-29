@@ -7,13 +7,17 @@ app_name = 'ProfilesActions'
 
 urlpatterns = [
 
-    #PATIENT~PROFILE
+    #PROFILES~ENDPOINT
     path('Pt/', views.PtUserProfile, name="PtUserProfile"),
+    path('Dr/', views.DrUserProfile, name="DrUserProfile"),
 
-    #DOCTOR~PROFILE
-    path('Dr/', views.DrUserProfile, name="DrUserProfile"), 
     
-    #PROFILE~SETTINGS
+    #NOTIFICATIONS~ENDPOINTS
+    path('Pt/notifications/', views.PtUserNotifications, name="PtUserNotifications"), 
+    path('Dr/notifications/', views.DrUserNotifications, name="DrUserNotifications"),
+    
+    
+    #PROFILE~SETTINGS~ENDPOINTS
     path('ImageUpdate/', views.ImageUpdate, name="ImageUpdate"),
     path('InfoUpdate/', views.InfoUpdate, name="InfoUpdate"),
     path('PasswordUpdate/', views.PasswordUpdate, name="PasswordUpdate"),

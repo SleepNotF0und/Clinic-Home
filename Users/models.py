@@ -9,7 +9,7 @@ from django.dispatch import receiver
 
 from rest_framework.authtoken.models import Token
 
-
+from cloudinary.models import CloudinaryField 
 
 
 
@@ -20,7 +20,8 @@ class CustomUser(AbstractUser):
     mobile = models.CharField(max_length=20, blank=True, null=True, unique=False)
     otp = models.CharField(max_length=6)
 
-    profile_pic = models.ImageField(default="default-avatar.jpg", upload_to="image", null=True, blank=True)
+    #profile_pic = models.ImageField(default="default-avatar.jpg", upload_to="image", null=True, blank=True)
+    profile_pic = CloudinaryField('profile_pic')
 
     is_patient = models.BooleanField(default=False)
     is_doctor = models.BooleanField(default=False)
