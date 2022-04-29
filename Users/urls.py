@@ -51,7 +51,7 @@ urlpatterns = [
     path('Login/', views.Login, name="Login"),
 
     #FORGET~PASSWORD~ENDPOINT
-    path('Login/ForgetPassword', views.ForgetPassword, name="ForgetPassword"),
+    path('Login/ForgetPassword/', views.ForgetPassword, name="ForgetPassword"),
 
     #RESET~PASSWORD~ENDPOINT
     path('Login/ResetPassword/<int:id>', views.ResetPassword, name="PasswordReset"),
