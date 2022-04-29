@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, I
 
 from Users.models import Doctors, Patients
 from PatientActions.models import Reservations
+from .models import Notifications
 from .serializers import *
 
 
@@ -26,7 +27,6 @@ from .serializers import *
 @authentication_classes((TokenAuthentication,))
 @permission_classes((IsAuthenticated,))
 #========================
-#ADD~TOP~RATED~DOCTORS
 def PtUserProfile(request):
     if request.method == 'GET':
         CurrentUser = request.user
@@ -77,6 +77,63 @@ def DrUserProfile(request):
         except get_user_model().DoesNotExist:
             content = {"status":False, "details":"User Not Found"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+#========================
+def DrUserNotifications(request):
+    if request.method == 'GET':
+        CurrentUser = request.user
+
+        try:
+            GetUser = get_user_model().objects.get(id=CurrentUser.id)
+            GetDoctor = Doctors.objects.get(user=GetUser.id)
+
+            GetDrNotifications = Notifications.objects.filter(doctor=GetDoctor)
+            GetDrNotifications_srz = GetDrNotificationsSerializer(GetDrNotifications, many=True)
+
+            content = {
+                "status":True, 
+                "username":CurrentUser.username, 
+                "notifications":GetDrNotifications_srz.data
+                }
+            return Response(content, status=status.HTTP_200_OK)
+        
+        except get_user_model().DoesNotExist:
+            content = {"status":False, "details":"User Not Found"}     
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+#========================
+def PtUserNotifications(request):
+    if request.method == 'GET':
+        CurrentUser = request.user
+
+        try:
+            GetUser = get_user_model().objects.get(id=CurrentUser.id)
+            GetPatient = Patients.objects.get(user=GetUser.id)
+
+            GetPtNotifications = Notifications.objects.filter(patient=GetPatient)
+            GetPtNotifications_srz = GetPtNotificationsSerializer(GetPtNotifications, many=True)
+
+            content = {
+                "status":True, 
+                "username":CurrentUser.username, 
+                "notifications":GetPtNotifications_srz.data
+                }
+            return Response(content, status=status.HTTP_200_OK)
+        
+        except get_user_model().DoesNotExist:
+            content = {"status":False, "details":"User Not Found"}     
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
 
 
 

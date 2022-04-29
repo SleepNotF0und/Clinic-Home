@@ -19,8 +19,8 @@ urlpatterns = [
     
     #RESERVE~ENDPOINT----/action/pt/reserve/create/
     #DELETE~RESERVE~ENDPOINT---/action/pt/reserve/delete/
-    path('reserve/create/', views.Reserve, name="CreateReservation"),
-    path('reserve/delete/', views.DeleteReserve, name="DeleteReservation"),
+    path('reservation/create/', views.Reserve, name="CreateReservation"),
+    path('reservation/delete/', views.DeleteReserve, name="DeleteReservation"),
 
 
     #COMMENT~ENDPOINT---/action/pt/comment/create/

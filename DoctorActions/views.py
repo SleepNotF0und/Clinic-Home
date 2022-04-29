@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, I
 
 from Users.models import Doctors, Patients
 from PatientActions.models import Reservations, Comments
+from ProfilesActions.models import Notifications
 from .serializers import *
 
 
@@ -36,13 +37,22 @@ def AcceptReservation(request):
                 OppointmentDate = request.data['time']
 
                 GetPatientUser = get_user_model().objects.get(username=PatientName)
+                GetPatient = Patients.objects.get(user=GetPatientUser.id)
                 
                 GetReservation = Reservations.objects.get(user=GetPatientUser.id)
                 GetReservation.accepted = True
                 GetReservation.opptdate = OppointmentDate
                 GetReservation.save()
                 
-                content = {"status":True, "details":"Reservation Accepted", "Doctor":GetUser.username, "Patient":GetPatientUser.username}
+                #FIRE~A~NOTIFICATION~TO~THE~PATIENT
+                Notifications.objects.create(currentuser=CurrentUser, patient=GetPatient, message=CurrentUser.username+" Accepted your Reservation")
+
+                content = {
+                    "status":True, 
+                    "details":"Reservation Accepted", 
+                    "Doctor":GetUser.username, 
+                    "Patient":GetPatientUser.username
+                    }
                 return Response(content, status=status.HTTP_201_CREATED)
 
             else:
@@ -69,13 +79,23 @@ def RefuseReservation(request):
             if GetUser.is_doctor == True:
                 
                 PatientName = request.data['patient']
+
                 GetPatientUser = get_user_model().objects.get(username=PatientName)
+                GetPatient = Patients.objects.get(user=GetPatientUser.id)
                 
                 GetReservation = Reservations.objects.get(user=GetPatientUser.id)
                 GetReservation.accepted = False
                 GetReservation.save()
                 
-                content = {"status":True, "details":"Reservation Refused", "Doctor":GetUser.username, "Patient":GetPatientUser.username}
+                #FIRE~A~NOTIFICATION~TO~THE~PATIENT
+                Notifications.objects.create(currentuser=CurrentUser, patient=GetPatient, message=CurrentUser.username+" Cancelled your Reservation")
+
+                content = {
+                    "status":True, 
+                    "details":"Reservation Refused", 
+                    "Doctor":GetUser.username, 
+                    "Patient":GetPatientUser.username
+                    }
                 return Response(content, status=status.HTTP_201_CREATED)
 
             else:
