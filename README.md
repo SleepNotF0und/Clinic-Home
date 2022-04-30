@@ -7,8 +7,8 @@
 * pytz==2022.1
 * sqlparse==0.4.2
 * typing_extensions==4.1.1
+* django_filters
 
 **Third Party**
 * twilio 
 * cloudinary 
-* django_filters
