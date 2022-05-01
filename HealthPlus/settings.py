@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-
+import django_heroku
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
@@ -30,7 +30,7 @@ SECRET_KEY = 'yh#m07s^tk(-p^umh!dbj&p7+icj*8wgk8e1k(3)oh$q83yp+f'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -99,8 +99,7 @@ DATABASES = {
     }
 }
 
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField' 
-
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
@@ -125,7 +124,6 @@ SOCIAL_AUTH_FACEBOOK_KEY = '351509633685414'
 SOCIAL_AUTH_FACEBOOK_SECRET = 'f73f40560620c4e38236440b66f875e4'
 
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
@@ -144,20 +142,23 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+# Activate Django-Heroku.
+django_heroku.settings(locals())
 #MEDIA_URL = '/media/'
 #MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-#CLOUDINARY~CONFIGURATION
-cloudinary.config( 
-  cloud_name = "clinichome", 
-  api_key = "837537839168758", 
-  api_secret = "WB0WhKwi1XfPK9SWwk-8b6Xp-ks"
+# CLOUDINARY~CONFIGURATION
+cloudinary.config(
+    cloud_name="clinichome",
+    api_key="837537839168758",
+    api_secret="WB0WhKwi1XfPK9SWwk-8b6Xp-ks"
 )
 
 
-#GMAIL~CONFIGURATION
+# GMAIL~CONFIGURATION
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
