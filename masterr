@@ -1,3 +1,7 @@
+**install Packeges**
+```
+pip install -r requirements.txt
+```
 **Packeges**
 
 * asgiref==3.5.0
