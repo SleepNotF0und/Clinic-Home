@@ -532,7 +532,7 @@ def ForgetPassword(request):
 
             #SEND~OTP~CODE~VIA~EMAIL
             subject = Email
-            message = "Hello From Health+, Visit this Link to Reset Your Password http://127.0.0.1:8000/api/ResetPassword/"+str(CurrentUser.id)
+            message = "Hello From Health+, Visit this Link to Reset Your Password http://127.0.0.1:8000/api/login/ResetPassword/"+str(CurrentUser.id)
             email_form = settings.EMAIL_HOST
             send_mail(subject, message, email_form, [Email])
 
