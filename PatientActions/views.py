@@ -77,7 +77,8 @@ def ViewDoctorProfile(request, id):
                 "status":True,
                 "Username":GetUser.username, 
                 "ImageURL":UserImage, 
-                "specialize":GetDoctor.specialize, 
+                "specialize":GetDoctor.specialize,
+                "price":GetDoctor.price,
                 "info":GetDoctor.info,
                 "city":GetDoctor.city,
                 "district":GetDoctor.district,
@@ -117,9 +118,10 @@ def Reserve(request):
 
                 content = {
                     "status":True, 
-                    "details":"Reservation Created", 
-                    "Patient":GetUser.username, 
-                    "doctor":GetDoctorUser.username
+                    "details":"Reservation Created Thank You", 
+                    "doctor":GetDoctorUser.username,
+                    "price":GetDoctorUser.price,
+                    "address":GetDoctorUser.address
                     }
                 return Response(content, status=status.HTTP_201_CREATED)
 
@@ -282,7 +284,6 @@ def DeleteComment(request):
 @authentication_classes((TokenAuthentication,))
 @permission_classes((IsAuthenticated,))
 #========================
-#ADD~TOP~RATED~DOCTORS
 def ViewReservations(request):
     if request.method == 'GET':
         CurrentUser = request.user

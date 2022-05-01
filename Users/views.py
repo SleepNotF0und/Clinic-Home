@@ -34,14 +34,14 @@ import random, os
 @authentication_classes((TokenAuthentication,))
 @permission_classes((IsAuthenticated,))
 #========================
-def GET_DentistInfo(request):
+def DoctorsCategory(request):
     if request.method == 'GET':
-
+        Param = request.GET.get('spec', '')
         data = { 'Doctors': [] }
         doctors_db = Doctors.objects.all()
-        DentistInfo_srz = DentistInfoSerializer(doctors_db, many=True)
+        DoctorsCategory_srz = DoctorsCategorySerializer(doctors_db, many=True)
 
-        for ele in DentistInfo_srz.data:
+        for ele in DoctorsCategory_srz.data:
             GetUser = CustomUser.objects.get(pk=ele['user'])          
             GetImage = GetUser.profile_pic
 
@@ -53,7 +53,7 @@ def GET_DentistInfo(request):
             if GetUser:
                 ele['username'] = GetUser.username
                 ele['image'] = CurrentImage
-                if ele['specialize'] == 'dentist':
+                if ele['specialize'] == Param:
                     data['Doctors'].append(ele)
         
         content = {"status":True, "details":"success", "data":data}
@@ -61,220 +61,220 @@ def GET_DentistInfo(request):
     
 
 
-@api_view(['GET'])
-@authentication_classes((TokenAuthentication,))
-@permission_classes((IsAuthenticated,))
-#========================
-def GET_InternalInfo(request):
-    if request.method == 'GET':
+# @api_view(['GET'])
+# @authentication_classes((TokenAuthentication,))
+# @permission_classes((IsAuthenticated,))
+# #========================
+# def GET_InternalInfo(request):
+#     if request.method == 'GET':
 
-        data = { 'Doctors': [] }
-        doctors_db = Doctors.objects.all()
-        InternalInfo_srz = InternalInfoSerializer(doctors_db, many=True)
+#         data = { 'Doctors': [] }
+#         doctors_db = Doctors.objects.all()
+#         InternalInfo_srz = InternalInfoSerializer(doctors_db, many=True)
         
-        for ele in InternalInfo_srz.data:     
-            GetUser = CustomUser.objects.get(pk=ele['user'])
-            GetImage = GetUser.profile_pic
+#         for ele in InternalInfo_srz.data:     
+#             GetUser = CustomUser.objects.get(pk=ele['user'])
+#             GetImage = GetUser.profile_pic
 
-            if GetImage and hasattr(GetImage, 'url'):
-                CurrentImage = GetImage.url
-            else:
-                CurrentImage = "User has No Profile Pic"
+#             if GetImage and hasattr(GetImage, 'url'):
+#                 CurrentImage = GetImage.url
+#             else:
+#                 CurrentImage = "User has No Profile Pic"
 
-            if GetUser:
-                ele['username'] = GetUser.username
-                ele['image'] = CurrentImage
-                if ele['specialize'] == 'internal medicine':
-                    data['Doctors'].append(ele)
+#             if GetUser:
+#                 ele['username'] = GetUser.username
+#                 ele['image'] = CurrentImage
+#                 if ele['specialize'] == 'internal medicine':
+#                     data['Doctors'].append(ele)
                 
-        content = {"status":True, "details":"success", "data":data}
-        return Response(content, status=status.HTTP_200_OK)
+#         content = {"status":True, "details":"success", "data":data}
+#         return Response(content, status=status.HTTP_200_OK)
 
 
 
-@api_view(['GET'])
-@authentication_classes((TokenAuthentication,))
-@permission_classes((IsAuthenticated,))
-#========================
-def GET_OphthalmologistsInfo(request):
-    if request.method == 'GET':
+# @api_view(['GET'])
+# @authentication_classes((TokenAuthentication,))
+# @permission_classes((IsAuthenticated,))
+# #========================
+# def GET_OphthalmologistsInfo(request):
+#     if request.method == 'GET':
 
-        data = { 'Doctors': [] }
-        doctors_db = Doctors.objects.all()
-        OphthalmologistsInfo_srz = OphthalmologistsInfoSerializer(doctors_db, many=True)
+#         data = { 'Doctors': [] }
+#         doctors_db = Doctors.objects.all()
+#         OphthalmologistsInfo_srz = OphthalmologistsInfoSerializer(doctors_db, many=True)
         
-        for ele in OphthalmologistsInfo_srz.data:     
-            GetUser = CustomUser.objects.get(pk=ele['user'])
-            GetImage = GetUser.profile_pic
+#         for ele in OphthalmologistsInfo_srz.data:     
+#             GetUser = CustomUser.objects.get(pk=ele['user'])
+#             GetImage = GetUser.profile_pic
 
-            if GetImage and hasattr(GetImage, 'url'):
-                CurrentImage = GetImage.url
-            else:
-                CurrentImage = "User has No Profile Pic"
+#             if GetImage and hasattr(GetImage, 'url'):
+#                 CurrentImage = GetImage.url
+#             else:
+#                 CurrentImage = "User has No Profile Pic"
 
-            if GetUser:
-                ele['username'] = GetUser.username
-                ele['image'] = CurrentImage
-                if ele['specialize'] == 'ophthalmologists':
-                    data['Doctors'].append(ele)
+#             if GetUser:
+#                 ele['username'] = GetUser.username
+#                 ele['image'] = CurrentImage
+#                 if ele['specialize'] == 'ophthalmologists':
+#                     data['Doctors'].append(ele)
                 
-        content = {"status":True, "details":"success", "data":data}
-        return Response(content, status=status.HTTP_200_OK)
+#         content = {"status":True, "details":"success", "data":data}
+#         return Response(content, status=status.HTTP_200_OK)
 
 
 
-@api_view(['GET'])
-@authentication_classes((TokenAuthentication,))
-@permission_classes((IsAuthenticated,))
-#========================
-def GET_PediatriciansInfo(request):
-    if request.method == 'GET':
+# @api_view(['GET'])
+# @authentication_classes((TokenAuthentication,))
+# @permission_classes((IsAuthenticated,))
+# #========================
+# def GET_PediatriciansInfo(request):
+#     if request.method == 'GET':
 
-        data = { 'Doctors': [] }
-        doctors_db = Doctors.objects.all()
-        PediatriciansInfo_srz = PediatriciansInfoSerializer(doctors_db, many=True)
+#         data = { 'Doctors': [] }
+#         doctors_db = Doctors.objects.all()
+#         PediatriciansInfo_srz = PediatriciansInfoSerializer(doctors_db, many=True)
         
-        for ele in PediatriciansInfo_srz.data:     
-            GetUser = CustomUser.objects.get(pk=ele['user'])
-            GetImage = GetUser.profile_pic
+#         for ele in PediatriciansInfo_srz.data:     
+#             GetUser = CustomUser.objects.get(pk=ele['user'])
+#             GetImage = GetUser.profile_pic
 
-            if GetImage and hasattr(GetImage, 'url'):
-                CurrentImage = GetImage.url
-            else:
-                CurrentImage = "User has No Profile Pic"
+#             if GetImage and hasattr(GetImage, 'url'):
+#                 CurrentImage = GetImage.url
+#             else:
+#                 CurrentImage = "User has No Profile Pic"
 
-            if GetUser:
-                ele['username'] = GetUser.username
-                ele['image'] = CurrentImage
-                if ele['specialize'] == 'pediatricians':
-                    data['Doctors'].append(ele)
+#             if GetUser:
+#                 ele['username'] = GetUser.username
+#                 ele['image'] = CurrentImage
+#                 if ele['specialize'] == 'pediatricians':
+#                     data['Doctors'].append(ele)
                 
-        content = {"status":True, "details":"success", "data":data}
-        return Response(content, status=status.HTTP_200_OK)
+#         content = {"status":True, "details":"success", "data":data}
+#         return Response(content, status=status.HTTP_200_OK)
 
 
 
-@api_view(['GET'])
-@authentication_classes((TokenAuthentication,))
-@permission_classes((IsAuthenticated,))
-#========================
-def GET_OtolaryngologistsInfo(request):
-    if request.method == 'GET':
+# @api_view(['GET'])
+# @authentication_classes((TokenAuthentication,))
+# @permission_classes((IsAuthenticated,))
+# #========================
+# def GET_OtolaryngologistsInfo(request):
+#     if request.method == 'GET':
 
-        data = { 'Doctors': [] }
-        doctors_db = Doctors.objects.all()
-        OtolaryngologistsInfo_srz = OtolaryngologistsInfoSerializer(doctors_db, many=True)
+#         data = { 'Doctors': [] }
+#         doctors_db = Doctors.objects.all()
+#         OtolaryngologistsInfo_srz = OtolaryngologistsInfoSerializer(doctors_db, many=True)
         
-        for ele in OtolaryngologistsInfo_srz.data:     
-            GetUser = CustomUser.objects.get(pk=ele['user'])
-            GetImage = GetUser.profile_pic
+#         for ele in OtolaryngologistsInfo_srz.data:     
+#             GetUser = CustomUser.objects.get(pk=ele['user'])
+#             GetImage = GetUser.profile_pic
 
-            if GetImage and hasattr(GetImage, 'url'):
-                CurrentImage = GetImage.url
-            else:
-                CurrentImage = "User has No Profile Pic"
+#             if GetImage and hasattr(GetImage, 'url'):
+#                 CurrentImage = GetImage.url
+#             else:
+#                 CurrentImage = "User has No Profile Pic"
 
-            if GetUser:
-                ele['username'] = GetUser.username
-                ele['image'] = CurrentImage
-                if ele['specialize'] == 'otolaryngologists':
-                    data['Doctors'].append(ele)
+#             if GetUser:
+#                 ele['username'] = GetUser.username
+#                 ele['image'] = CurrentImage
+#                 if ele['specialize'] == 'otolaryngologists':
+#                     data['Doctors'].append(ele)
                 
-        content = {"status":True, "details":"success", "data":data}
-        return Response(content, status=status.HTTP_200_OK)
+#         content = {"status":True, "details":"success", "data":data}
+#         return Response(content, status=status.HTTP_200_OK)
 
 
 
-@api_view(['GET'])
-@authentication_classes((TokenAuthentication,))
-@permission_classes((IsAuthenticated,))
-#========================
-def GET_DermatologistsInfo(request):
-    if request.method == 'GET':
+# @api_view(['GET'])
+# @authentication_classes((TokenAuthentication,))
+# @permission_classes((IsAuthenticated,))
+# #========================
+# def GET_DermatologistsInfo(request):
+#     if request.method == 'GET':
 
-        data = { 'Doctors': [] }
-        doctors_db = Doctors.objects.all()
-        DermatologistsInfo_srz = DermatologistsInfoSerializer(doctors_db, many=True)
+#         data = { 'Doctors': [] }
+#         doctors_db = Doctors.objects.all()
+#         DermatologistsInfo_srz = DermatologistsInfoSerializer(doctors_db, many=True)
         
-        for ele in DermatologistsInfo_srz.data:     
-            GetUser = CustomUser.objects.get(pk=ele['user'])
-            GetImage = GetUser.profile_pic
+#         for ele in DermatologistsInfo_srz.data:     
+#             GetUser = CustomUser.objects.get(pk=ele['user'])
+#             GetImage = GetUser.profile_pic
 
-            if GetImage and hasattr(GetImage, 'url'):
-                CurrentImage = GetImage.url
-            else:
-                CurrentImage = "User has No Profile Pic"
+#             if GetImage and hasattr(GetImage, 'url'):
+#                 CurrentImage = GetImage.url
+#             else:
+#                 CurrentImage = "User has No Profile Pic"
 
-            if GetUser:
-                ele['username'] = GetUser.username
-                ele['image'] = CurrentImage
-                if ele['specialize'] == 'dermatologists':
-                    data['Doctors'].append(ele)
+#             if GetUser:
+#                 ele['username'] = GetUser.username
+#                 ele['image'] = CurrentImage
+#                 if ele['specialize'] == 'dermatologists':
+#                     data['Doctors'].append(ele)
                 
-        content = {"status":True, "details":"success", "data":data}
-        return Response(content, status=status.HTTP_200_OK)
+#         content = {"status":True, "details":"success", "data":data}
+#         return Response(content, status=status.HTTP_200_OK)
 
 
 
-@api_view(['GET'])
-@authentication_classes((TokenAuthentication,))
-@permission_classes((IsAuthenticated,))
-#========================
-def GET_NeurologistsInfo(request):
-    if request.method == 'GET':
+# @api_view(['GET'])
+# @authentication_classes((TokenAuthentication,))
+# @permission_classes((IsAuthenticated,))
+# #========================
+# def GET_NeurologistsInfo(request):
+#     if request.method == 'GET':
 
-        data = { 'Doctors': [] }
-        doctors_db = Doctors.objects.all()
-        NeurologistsInfo_srz = NeurologistsInfoSerializer(doctors_db, many=True)
+#         data = { 'Doctors': [] }
+#         doctors_db = Doctors.objects.all()
+#         NeurologistsInfo_srz = NeurologistsInfoSerializer(doctors_db, many=True)
         
-        for ele in NeurologistsInfo_srz.data:     
-            GetUser = CustomUser.objects.get(pk=ele['user'])
-            GetImage = GetUser.profile_pic
+#         for ele in NeurologistsInfo_srz.data:     
+#             GetUser = CustomUser.objects.get(pk=ele['user'])
+#             GetImage = GetUser.profile_pic
 
-            if GetImage and hasattr(GetImage, 'url'):
-                CurrentImage = GetImage.url
-            else:
-                CurrentImage = "User has No Profile Pic"
+#             if GetImage and hasattr(GetImage, 'url'):
+#                 CurrentImage = GetImage.url
+#             else:
+#                 CurrentImage = "User has No Profile Pic"
 
-            if GetUser:
-                ele['username'] = GetUser.username
-                ele['image'] = CurrentImage
-                if ele['specialize'] == 'neurologists':
-                    data['Doctors'].append(ele)
+#             if GetUser:
+#                 ele['username'] = GetUser.username
+#                 ele['image'] = CurrentImage
+#                 if ele['specialize'] == 'neurologists':
+#                     data['Doctors'].append(ele)
                 
-        content = {"status":True, "details":"success", "data":data}
-        return Response(content, status=status.HTTP_200_OK)
+#         content = {"status":True, "details":"success", "data":data}
+#         return Response(content, status=status.HTTP_200_OK)
 
 
 
-@api_view(['GET'])
-@authentication_classes((TokenAuthentication,))
-@permission_classes((IsAuthenticated,))
-#========================
-def GET_GynecologistsInfo(request):
-    if request.method == 'GET':
+# @api_view(['GET'])
+# @authentication_classes((TokenAuthentication,))
+# @permission_classes((IsAuthenticated,))
+# #========================
+# def GET_GynecologistsInfo(request):
+#     if request.method == 'GET':
 
-        data = { 'Doctors': [] }
-        doctors_db = Doctors.objects.all()
-        GynecologistsInfo_srz = GynecologistsInfoSerializer(doctors_db, many=True)
+#         data = { 'Doctors': [] }
+#         doctors_db = Doctors.objects.all()
+#         GynecologistsInfo_srz = GynecologistsInfoSerializer(doctors_db, many=True)
         
-        for ele in GynecologistsInfo_srz.data:     
-            GetUser = CustomUser.objects.get(pk=ele['user'])
-            GetImage = GetUser.profile_pic
+#         for ele in GynecologistsInfo_srz.data:     
+#             GetUser = CustomUser.objects.get(pk=ele['user'])
+#             GetImage = GetUser.profile_pic
 
-            if GetImage and hasattr(GetImage, 'url'):
-                CurrentImage = GetImage.url
-            else:
-                CurrentImage = "User has No Profile Pic"
+#             if GetImage and hasattr(GetImage, 'url'):
+#                 CurrentImage = GetImage.url
+#             else:
+#                 CurrentImage = "User has No Profile Pic"
 
-            if GetUser:
-                ele['username'] = GetUser.username
-                ele['image'] = CurrentImage
-                if ele['specialize'] == 'gynecologists':
-                    data['Doctors'].append(ele)
+#             if GetUser:
+#                 ele['username'] = GetUser.username
+#                 ele['image'] = CurrentImage
+#                 if ele['specialize'] == 'gynecologists':
+#                     data['Doctors'].append(ele)
                 
-        content = {"status":True, "details":"success", "data":data}
-        return Response(content, status=status.HTTP_200_OK)
+#         content = {"status":True, "details":"success", "data":data}
+#         return Response(content, status=status.HTTP_200_OK)
 
 
 
