@@ -10,14 +10,14 @@ app_name = 'Users'
 
 urlpatterns = [
     #SHOW~DOCTORS~SPEC~INFO~ENDPOINT
-    path('doctors/dentist/', views.GET_DentistInfo, name="GET_DentistInfo"),
-    path('doctors/internalMedicine/', views.GET_InternalInfo, name="GET_InternalInfo"),
-    path('doctors/ophthalmologists/', views.GET_OphthalmologistsInfo, name="GET_OphthalmologistsInfo"),
-    path('doctors/pediatricians/', views.GET_PediatriciansInfo, name="GET_PediatriciansInfo"),
-    path('doctors/otolaryngologists/', views.GET_OtolaryngologistsInfo, name="GET_OtolaryngologistsInfo"),
-    path('doctors/dermatologists/', views.GET_DermatologistsInfo, name="GET_DermatologistsInfo"),
-    path('doctors/neurologists/', views.GET_NeurologistsInfo, name="GET_NeurologistsInfo"),
-    path('doctors/gynecologists/', views.GET_GynecologistsInfo, name="GET_GynecologistsInfo"),
+    path('category/', views.DoctorsCategory, name="category"),
+    #path('doctors/internalMedicine/', views.GET_InternalInfo, name="GET_InternalInfo"),
+    #path('doctors/ophthalmologists/', views.GET_OphthalmologistsInfo, name="GET_OphthalmologistsInfo"),
+    #path('doctors/pediatricians/', views.GET_PediatriciansInfo, name="GET_PediatriciansInfo"),
+    #path('doctors/otolaryngologists/', views.GET_OtolaryngologistsInfo, name="GET_OtolaryngologistsInfo"),
+    #path('doctors/dermatologists/', views.GET_DermatologistsInfo, name="GET_DermatologistsInfo"),
+    #path('doctors/neurologists/', views.GET_NeurologistsInfo, name="GET_NeurologistsInfo"),
+    #path('doctors/gynecologists/', views.GET_GynecologistsInfo, name="GET_GynecologistsInfo"),
 
 
 

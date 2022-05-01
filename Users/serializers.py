@@ -16,45 +16,45 @@ from django.utils.translation import gettext as _
 
 
 
-class DentistInfoSerializer(serializers.ModelSerializer):
+class DoctorsCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctors
         fields = ['user','specialize']
 
-class InternalInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Doctors
-        fields = ['user','specialize']
+# class InternalInfoSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Doctors
+#         fields = ['user','specialize']
         
-class OphthalmologistsInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Doctors
-        fields = ['user','specialize']
+# class OphthalmologistsInfoSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Doctors
+#         fields = ['user','specialize']
 
-class PediatriciansInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Doctors
-        fields = ['user','specialize']
+# class PediatriciansInfoSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Doctors
+#         fields = ['user','specialize']
 
-class OtolaryngologistsInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Doctors
-        fields = ['user','specialize']
+# class OtolaryngologistsInfoSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Doctors
+#         fields = ['user','specialize']
  
-class DermatologistsInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Doctors
-        fields = ['user','specialize']       
+# class DermatologistsInfoSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Doctors
+#         fields = ['user','specialize']       
 
-class NeurologistsInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Doctors
-        fields = ['user','specialize']  
+# class NeurologistsInfoSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Doctors
+#         fields = ['user','specialize']  
 
-class GynecologistsInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Doctors
-        fields = ['user','specialize'] 
+# class GynecologistsInfoSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Doctors
+#         fields = ['user','specialize'] 
 
 
 
