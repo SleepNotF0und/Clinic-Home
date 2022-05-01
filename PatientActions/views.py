@@ -121,7 +121,7 @@ def Reserve(request):
                     "details":"Reservation Created Thank You", 
                     "doctor":GetDoctorUser.username,
                     "price":GetDoctorId.price,
-                    "address":GetDoctorUser.address
+                    "address":GetDoctorId.address
                     }
                 return Response(content, status=status.HTTP_201_CREATED)
 
