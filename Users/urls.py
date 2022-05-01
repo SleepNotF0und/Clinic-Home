@@ -22,21 +22,21 @@ urlpatterns = [
 
 
     #EMAIL~VALIDATION~ENDPOINT
-    path('doctor/verify_email/', views.Verify_Email, name="VerifyEmail"),
-    path('patient/verify_email/', views.Verify_Email, name="VerifyEmail"),
+    path('verify_email/', views.Verify_Email, name="VerifyEmail"),
+    #path('patient/verify_email/', views.Verify_Email, name="VerifyEmail"),
 
     #EMAIL~OTP~VALIDATION~ENDPOINT
-    path('doctor/verify_email/verify_OTP/', views.Verify_OTP, name="VerifyOTP"),
-    path('patient/verify_email/verify_OTP/', views.Verify_OTP, name="VerifyOTP"),
+    path('verify_email/verify_OTP/', views.Verify_OTP, name="VerifyOTP"),
+    #path('patient/verify_email/verify_OTP/', views.Verify_OTP, name="VerifyOTP"),
 
 
     #MOBILE~VALIDATION~ENDPOINT
-    path('doctor/verify_mobile/', views.Verify_Mobile, name="VerifyOTP"),
-    path('patient/verify_mobile/', views.Verify_Mobile, name="VerifyOTP"),
+    path('verify_mobile/', views.Verify_Mobile, name="VerifyOTP"),
+    #path('patient/verify_mobile/', views.Verify_Mobile, name="VerifyOTP"),
 
     #MOBILE~OTP~VALIDATION~ENDPOINT
-    path('doctor/verify_mobile/verify_OTP/', views.Verify_OTP, name="VerifyOTP"),
-    path('patient/verify_mobile/verify_OTP/', views.Verify_OTP, name="VerifyOTP"),
+    path('verify_mobile/verify_OTP/', views.Verify_OTP, name="VerifyOTP"),
+    #path('patient/verify_mobile/verify_OTP/', views.Verify_OTP, name="VerifyOTP"),
 
 
     #SIGN~UP~ENDPOINTS
@@ -48,15 +48,14 @@ urlpatterns = [
     path('AuthToken/', obtain_auth_token), 
 
     #LOGIN~AUTH~TOKEN~ENDPOINT
-    path('Login/', views.Login, name="Login"),
+    path('login/', views.Login, name="login"),
 
     #FORGET~PASSWORD~ENDPOINT
-    path('Login/ForgetPassword/', views.ForgetPassword, name="ForgetPassword"),
+    path('login/ForgetPassword/', views.ForgetPassword, name="ForgetPassword"),
 
     #RESET~PASSWORD~ENDPOINT
-    path('Login/ResetPassword/<int:id>', views.ResetPassword, name="PasswordReset"),
+    path('login/ResetPassword/<int:id>', views.ResetPassword, name="PasswordReset"),
 
     #FACEBOOK~SOCIAL~LOGIN~ENDPOINT
-    path('Login/FacebookAuth/', views.SocialLogin, name="FacebookLogin"),
+    path('login/FacebookAuth/', views.SocialLogin, name="FacebookLogin"),
 ]
-
