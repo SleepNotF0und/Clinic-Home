@@ -75,7 +75,7 @@ def DrUserProfile(request):
             return Response(content, status=status.HTTP_200_OK)
         
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"User Not Found"}     
+            content = {"status":False, "details":"Your account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -103,7 +103,7 @@ def DrUserNotifications(request):
             return Response(content, status=status.HTTP_200_OK)
         
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"User Not Found"}     
+            content = {"status":False, "details":"Your account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -131,7 +131,7 @@ def PtUserNotifications(request):
             return Response(content, status=status.HTTP_200_OK)
         
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"User Not Found"}     
+            content = {"status":False, "details":"Your account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -154,7 +154,7 @@ def ImageUpdate(request):
             return Response(content, status=status.HTTP_200_OK)
         
         except:
-            content = {"status":False, "details":"User Not Found"}     
+            content = {"status":False, "details":"Your account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -179,7 +179,7 @@ def InfoUpdate(request):
                 return Response(content, status=status.HTTP_201_CREATED)
         
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"User Not Found"}     
+            content = {"status":False, "details":"Your account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -216,7 +216,7 @@ def PasswordUpdate(request):
                 return Response(content, status=status.HTTP_400_BAD_REQUEST) 
         
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"User Not Found"}     
+            content = {"status":False, "details":"Your account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -233,10 +233,6 @@ def PtAddressUpdate(request):
             GetUser = get_user_model().objects.get(id=CurrentUser.id)
             GetPatient = Patients.objects.get(user=GetUser.id)
 
-            City     = request.data['city']
-            District = request.data['district']
-            Address  = request.data['address']
-
             PtAddressUpdate_srz = PtAddressUpdateSerializer(GetPatient, data=request.data)
             if PtAddressUpdate_srz.is_valid(raise_exception=True):
                 PtAddressUpdate_srz.save()
@@ -245,37 +241,9 @@ def PtAddressUpdate(request):
                 return Response(content, status=status.HTTP_201_CREATED)
         
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"User Not Found"}     
+            content = {"status":False, "details":"Your account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-
-
-@api_view(['PUT'])
-@authentication_classes((TokenAuthentication,))
-@permission_classes((IsAuthenticated,))
-#========================
-def DrAddressUpdate(request):
-    if request.method == 'PUT':
-        CurrentUser = request.user
-
-        try:
-            GetUser = get_user_model().objects.get(id=CurrentUser.id)
-            GetDoctor = Doctors.objects.get(user=GetUser.id)
-
-            City     = request.data['city']
-            District = request.data['district']
-            Address  = request.data['address']
-
-            DrAddressUpdate_srz = DrAddressUpdateSerializer(GetDoctor, data=request.data)
-            if DrAddressUpdate_srz.is_valid(raise_exception=True):
-                DrAddressUpdate_srz.save()
-
-                content = {"status":True, "username":GetUser.username, "detials":"Address Updated"}
-                return Response(content, status=status.HTTP_201_CREATED)
-        
-        except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"User Not Found"}     
-            return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
 
@@ -304,7 +272,7 @@ def PtSpecialInfoUpdate(request):
                 return Response(content, status=status.HTTP_201_CREATED)
   
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"User Not Found"}     
+            content = {"status":False, "details":"Your account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -334,5 +302,5 @@ def DrSpecialInfoUpdate(request):
                 return Response(content, status=status.HTTP_201_CREATED)
         
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"User Not Found"}     
+            content = {"status":False, "details":"Your account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
