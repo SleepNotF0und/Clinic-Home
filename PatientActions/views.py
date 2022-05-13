@@ -20,6 +20,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, I
 
 from Users.models import Doctors, Patients
 from ProfilesActions.models import Notifications
+from DoctorActions.models import Clinics
 from .models import Reservations, Comments
 
 from .serializers import *
@@ -40,10 +41,9 @@ class SearchByName(ListAPIView):
     search_fields = [ 'username' ]
 
 
-
-class SearchByCity(ListAPIView):
-    queryset  = Doctors.objects.all()
-    serializer_class = SearchByCitySerializer
+class SearchClinicByCity(ListAPIView):
+    queryset  = Clinics.objects.all()
+    serializer_class = SearchClinicByCitySerializer
     
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -75,20 +75,42 @@ def ViewDoctorProfile(request, id):
 
             content = {
                 "status":True,
-                "Username":GetUser.username, 
+                "doctor":GetUser.username, 
                 "ImageURL":UserImage, 
                 "specialize":GetDoctor.specialize,
                 "price":GetDoctor.price,
                 "info":GetDoctor.info,
-                "city":GetDoctor.city,
-                "district":GetDoctor.district,
-                "address":GetDoctor.address,
                 "comments":DoctorComments_srz.data
             }
             return Response(content, status=status.HTTP_200_OK)
         
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"User Not Found"}     
+            content = {"status":False, "details":"doctor not found"}     
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+#========================
+def ViewDoctorClinics(request, id):
+    if request.method == 'GET':
+        try:
+            GetUser = get_user_model().objects.get(id=id)
+
+            DoctorClinics = Clinics.objects.filter(user=GetUser.id)
+            DoctorClinics_srz = DoctorClinicsSerializer(DoctorClinics, many=True)
+
+            content = {
+                "status":True,
+                "doctor":GetUser.username, 
+                "clinics":DoctorClinics_srz.data
+            }
+            return Response(content, status=status.HTTP_200_OK)
+        
+        except get_user_model().DoesNotExist:
+            content = {"status":False, "details":"Clinic not found"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -106,31 +128,51 @@ def Reserve(request):
 
             if GetUser.is_patient == True:
                 
-                DoctorName = request.data['doctor']
+                DoctorId = request.data['doctor']
+                ClinicName = request.data['clinic']
+                SetTime = request.data['opptdate']
 
-                GetDoctorUser = get_user_model().objects.get(username=DoctorName)
+                GetDoctorUser = get_user_model().objects.get(id=DoctorId)
                 GetDoctorId = Doctors.objects.get(user=GetDoctorUser.id)
                 
-                Reservations.objects.create(user=CurrentUser, doctor=GetDoctorId)
-                
-                #FIRE~A~NOTIFICATION~TO~THE~DOCTOR
-                Notifications.objects.create(currentuser=CurrentUser, doctor=GetDoctorId, message=CurrentUser.username+" Request an oppointment with you")
+                #CHECK~IF~PATIENT~HAVE~ALREADY~RESERVE~WITH~THAT~DOCTOR
+                if not Reservations.objects.filter(user=CurrentUser, doctor=GetDoctorId):
 
-                content = {
-                    "status":True, 
-                    "details":"Reservation Created Thank You", 
-                    "doctor":GetDoctorUser.username,
-                    "price":GetDoctorId.price,
-                    "address":GetDoctorId.address
-                    }
-                return Response(content, status=status.HTTP_201_CREATED)
+                    try:
+                        #GET~DOCTOR'S~CLINIC
+                        GetClinic = Clinics.objects.get(user=GetDoctorUser, clinicname=ClinicName)
+                    except Clinics.DoesNotExist:
+                        content = {"status":False, "details":"the doctor doesn't work in this clinic !"}     
+                        return Response(content, status=status.HTTP_400_BAD_REQUEST) 
+
+                    #CREATE~RESERVATION
+                    Reservations.objects.create(user=CurrentUser, doctor=GetDoctorId, opptdate=SetTime, clinic=GetClinic)
+                
+                    #FIRE~A~NOTIFICATION~TO~THE~DOCTOR
+                    Notifications.objects.create(currentuser=CurrentUser, doctor=GetDoctorId, message=CurrentUser.username+" Request an oppointment with you in clinic "+GetClinic.clinicname)
+
+                    content = {
+                        "status":True, 
+                        "details":"Reservation Created Thank You", 
+                        "doctor":GetDoctorUser.username,
+                        "price":GetDoctorId.price,
+                        "clinic name":GetClinic.clinicname,
+                        "clinic city":GetClinic.city,
+                        "clinic address":GetClinic.address,
+                        "requested time":SetTime
+                        }
+                    return Response(content, status=status.HTTP_201_CREATED)
+                
+                else:
+                    content = {"status":False, "details":"You already Have Reservation with that doctor !"}     
+                    return Response(content, status=status.HTTP_403_FORBIDDEN)                    
 
             else:
                 content = {"status":False, "details":"You are not patient"}     
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"User Not Found"}     
+            content = {"status":False, "details":"Your account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -148,9 +190,9 @@ def DeleteReserve(request):
 
             if GetUser.is_patient == True:
                 
-                DoctorName = request.data['doctor']
+                DoctorId = request.data['doctor']
 
-                GetDoctorUser = get_user_model().objects.get(username=DoctorName)
+                GetDoctorUser = get_user_model().objects.get(id=DoctorId)
                 GetDoctorId = Doctors.objects.get(user=GetDoctorUser.id)
                 
                 try:
@@ -181,7 +223,7 @@ def DeleteReserve(request):
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"User Not Found"}     
+            content = {"status":False, "details":"Your account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -200,32 +242,37 @@ def Comment(request):
 
             if GetUser.is_patient == True:
                 
+                DoctorId = request.data['doctor']
                 Comment = request.data['comment']
-                DoctorName = request.data['doctor']
 
-                GetDoctorUser = get_user_model().objects.get(username=DoctorName)
+                GetDoctorUser = get_user_model().objects.get(id=DoctorId)
                 GetDoctorId = Doctors.objects.get(user=GetDoctorUser.id)
                 
-                Comments.objects.create(user=CurrentUser, doctor=GetDoctorId, comment=Comment)
+                if not Comments.objects.filter(user=CurrentUser, doctor=GetDoctorId):
+                    Comments.objects.create(user=CurrentUser, doctor=GetDoctorId, comment=Comment)
 
-                #FIRE~A~NOTIFICATION~TO~THE~DOCTOR
-                Notifications.objects.create(currentuser=CurrentUser, doctor=GetDoctorId, message=CurrentUser.username +"Commented: "+ Comment)
+                    #FIRE~A~NOTIFICATION~TO~THE~DOCTOR
+                    Notifications.objects.create(currentuser=CurrentUser, doctor=GetDoctorId, message=CurrentUser.username +" Commented: "+ Comment)
 
-                content = {
-                    "status":True, 
-                    "details":"Commnet Created", 
-                    "Patient":GetUser.username, 
-                    "doctor":GetDoctorUser.username,
-                    "comment":Comment
-                    }
-                return Response(content, status=status.HTTP_201_CREATED)
+                    content = {
+                        "status":True, 
+                        "details":"Commnet Created", 
+                        "Patient":GetUser.username, 
+                        "doctor":GetDoctorUser.username,
+                        "comment":Comment
+                        }
+                    return Response(content, status=status.HTTP_201_CREATED)
+
+                else:
+                    content = {"status":False, "details":"You already added comment review for that doctor"}     
+                    return Response(content, status=status.HTTP_403_FORBIDDEN)
 
             else:
                 content = {"status":False, "details":"You are not patient"}     
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"User Not Found"}     
+            content = {"status":False, "details":"doctor not found"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -243,14 +290,13 @@ def DeleteComment(request):
 
             if GetUser.is_patient == True:
                 
-                Comment = request.data['comment']
-                DoctorName = request.data['doctor']
+                DoctorId = request.data['doctor']
 
-                GetDoctorUser = get_user_model().objects.get(username=DoctorName)
+                GetDoctorUser = get_user_model().objects.get(id=DoctorId)
                 GetDoctorId = Doctors.objects.get(user=GetDoctorUser.id)
                 
                 try:
-                    Comments.objects.get(user=CurrentUser, doctor=GetDoctorId, comment=Comment).delete()
+                    Comments.objects.get(user=CurrentUser, doctor=GetDoctorId).delete()
                     
                     content = {
                         "status":True, 
@@ -260,8 +306,7 @@ def DeleteComment(request):
                         }
                     return Response(content, status=status.HTTP_201_CREATED)
 
-                except Comments.DoesNotExist:
-                    
+                except Comments.DoesNotExist:                   
                     content = {
                         "status":False, 
                         "details":"Comment Not Found", 
@@ -275,7 +320,7 @@ def DeleteComment(request):
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"User Not Found"}     
+            content = {"status":False, "details":"doctor not found"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -301,19 +346,21 @@ def ViewReservations(request):
 
 
 
-
-
-
 @api_view(['GET'])
 @authentication_classes((TokenAuthentication,))
 @permission_classes((IsAuthenticated,))
 #========================
-#DEBUG
-def GET_Reservations(request):
+def ViewClinic(request, id):
     if request.method == 'GET':
-        Reservations_db = Reservations.objects.all()
-        Reservations_srz = ReservationsSerializer(Reservations_db, many=True)
+        try:
+            GetClinic = Clinics.objects.filter(id=id)
+            GetClinic_srz = ViewClinicSerializer(GetClinic, many=True)
+        
+            content = {"status":True, "data":GetClinic_srz.data}     
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-        content = {"status":True, "data":Reservations_srz.data}     
-        return Response(content, status=status.HTTP_404_NOT_FOUND)
+        except Clinics.DoesNotExist:
+            content = {"status":False, "details":"Clinic doesn't exist"}     
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+    

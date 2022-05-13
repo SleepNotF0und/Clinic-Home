@@ -18,11 +18,6 @@ class PtAddressUpdateSerializer(serializers.ModelSerializer):
         model = Patients
         fields = ['city','district','address']
 
-class DrAddressUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Doctors
-        fields = ['city','district','address']
-
 
 class PtSpecialInfoUpdateSerializer(serializers.ModelSerializer):
     class Meta:

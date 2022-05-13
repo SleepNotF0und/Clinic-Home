@@ -9,34 +9,20 @@ from . import views
 app_name = 'Users'
 
 urlpatterns = [
-    #SHOW~DOCTORS~SPEC~INFO~ENDPOINT
+    #SHOW~DOCTORS~BY~CATEGORY~ENDPOINT
+    #SHOW~ALL~TOPICS~ENDPOINT
+    #VIEW~TOPIC~ENDPOINT
     path('category/', views.DoctorsCategory, name="category"),
-    #path('doctors/internalMedicine/', views.GET_InternalInfo, name="GET_InternalInfo"),
-    #path('doctors/ophthalmologists/', views.GET_OphthalmologistsInfo, name="GET_OphthalmologistsInfo"),
-    #path('doctors/pediatricians/', views.GET_PediatriciansInfo, name="GET_PediatriciansInfo"),
-    #path('doctors/otolaryngologists/', views.GET_OtolaryngologistsInfo, name="GET_OtolaryngologistsInfo"),
-    #path('doctors/dermatologists/', views.GET_DermatologistsInfo, name="GET_DermatologistsInfo"),
-    #path('doctors/neurologists/', views.GET_NeurologistsInfo, name="GET_NeurologistsInfo"),
-    #path('doctors/gynecologists/', views.GET_GynecologistsInfo, name="GET_GynecologistsInfo"),
-
+    path('topics/', views.AllTopics, name="topics"),
+    path('topics/<int:id>', views.ViewTopic, name="topic"),
 
 
     #EMAIL~VALIDATION~ENDPOINT
-    path('verify_email/', views.Verify_Email, name="VerifyEmail"),
-    #path('patient/verify_email/', views.Verify_Email, name="VerifyEmail"),
-
-    #EMAIL~OTP~VALIDATION~ENDPOINT
-    path('verify_email/verify_OTP/', views.Verify_OTP, name="VerifyOTP"),
-    #path('patient/verify_email/verify_OTP/', views.Verify_OTP, name="VerifyOTP"),
-
-
     #MOBILE~VALIDATION~ENDPOINT
+    #OPT~VALIDATION~ENDPOINT
+    path('verify_email/', views.Verify_Email, name="VerifyEmail"),
     path('verify_mobile/', views.Verify_Mobile, name="VerifyOTP"),
-    #path('patient/verify_mobile/', views.Verify_Mobile, name="VerifyOTP"),
-
-    #MOBILE~OTP~VALIDATION~ENDPOINT
-    path('verify_mobile/verify_OTP/', views.Verify_OTP, name="VerifyOTP"),
-    #path('patient/verify_mobile/verify_OTP/', views.Verify_OTP, name="VerifyOTP"),
+    path('verify_OTP/', views.Verify_OTP, name="VerifyOTP"),
 
 
     #SIGN~UP~ENDPOINTS
@@ -47,15 +33,14 @@ urlpatterns = [
     #AUTH~TOKEN~BUILT-IN~ENDPOINT
     path('AuthToken/', obtain_auth_token), 
 
+
     #LOGIN~AUTH~TOKEN~ENDPOINT
-    path('login/', views.Login, name="login"),
-
     #FORGET~PASSWORD~ENDPOINT
-    path('login/ForgetPassword/', views.ForgetPassword, name="ForgetPassword"),
-
     #RESET~PASSWORD~ENDPOINT
-    path('login/ResetPassword/<int:id>', views.ResetPassword, name="PasswordReset"),
-
     #FACEBOOK~SOCIAL~LOGIN~ENDPOINT
+    path('login/', views.Login, name="login"),
+    path('login/ForgetPassword/', views.ForgetPassword, name="ForgetPassword"),
+    path('login/ResetPassword/<int:id>', views.ResetPassword, name="PasswordReset"),
     path('login/FacebookAuth/', views.SocialLogin, name="FacebookLogin"),
 ]
+

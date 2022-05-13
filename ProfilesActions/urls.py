@@ -8,8 +8,8 @@ app_name = 'ProfilesActions'
 urlpatterns = [
 
     #PROFILES~ENDPOINT
-    path('Pt/', views.PtUserProfile, name="PtUserProfile"),
-    path('Dr/', views.DrUserProfile, name="DrUserProfile"),
+    path('patient/', views.PtUserProfile, name="PtUserProfile"),
+    path('doctor/', views.DrUserProfile, name="DrUserProfile"),
 
     
     #NOTIFICATIONS~ENDPOINTS
@@ -23,7 +23,6 @@ urlpatterns = [
     path('PasswordUpdate/', views.PasswordUpdate, name="PasswordUpdate"),
 
     path('patient/AddressUpdate/', views.PtAddressUpdate, name="PtAddressUpdate"),
-    path('doctor/AddressUpdate/', views.DrAddressUpdate, name="DrAddressUpdate"),
 
     path('patient/SpecialInfoUpdate/', views.PtSpecialInfoUpdate, name="PtSpecialInfoUpdate"),
     path('doctor/SpecialInfoUpdate/', views.DrSpecialInfoUpdate, name="DrSpecialInfoUpdate"),

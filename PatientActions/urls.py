@@ -7,14 +7,19 @@ app_name = 'PatientActions'
 
 urlpatterns = [
 
-    #SEARCH~BY~NAME~ENDPOINT------/action/pt/search/name/?search=admin
-    #SEARCH~BY~CITY~ENDPOINT------/action/pt/search/city/?search=r
+    #SEARCH~ANY~USER~BY~NAME~ENDPOINT------/action/pt/search/name/?search=admin
+    #SEARCH~DOCTOR~ONLY~BY~CITY~ENDPOINT------/action/pt/search/city/?search=r
+    #SEARCH~CLINIC~BY~CITY~ENDPOINT------/action/pt/search/clinic/city/?search=tes
     path('search/name/', views.SearchByName.as_view()),
-    path('search/city/', views.SearchByCity.as_view()),
+    path('search/clinic/city/', views.SearchClinicByCity.as_view()),
 
     
-    #VIEW~DOCTOR~PROFILE~ENDPOINT--/action/pt/dr/21
-    path('drs/<int:id>/', views.ViewDoctorProfile, name="ViewDoctorProfile"),    
+    #VIEW~DOCTOR~PROFILE~ENDPOINT--/action/pt/drs/21/
+    #VIEW~DOCTOR~CLINICS~ENDPOINT--/action/pt/drs/21/clinics/
+    #VIEW~CLINIC~PAGE~ENDPOINT--/action/pt/clinics/3/
+    path('drs/<int:id>/', views.ViewDoctorProfile, name="ViewDoctorProfile"),
+    path('drs/<int:id>/clinics/', views.ViewDoctorClinics, name="ViewDoctorClinics"),
+    path('clinics/<int:id>/', views.ViewClinic, name="ViewClinic"),
 
     
     #RESERVE~ENDPOINT----/action/pt/reserve/create/
@@ -32,10 +37,4 @@ urlpatterns = [
     #VIEW~PATIENT~RESERVATIONS-----/action/pt/reservations/
     path('reservations/', views.ViewReservations, name="ViewReservations"),
 
-
-
-
-
-    #DEBUG~ALL~RESERVATIONS~ENDPOINT
-    path('Reservations/', views.GET_Reservations, ),
 ]
