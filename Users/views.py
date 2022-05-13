@@ -404,27 +404,3 @@ def SocialLogin(request):
         return Response(data, status=status.HTTP_200_OK)
 
 
-
-'''
-    if request.method == 'DELETE':
-        doctors_db.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT) 
-'''
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
