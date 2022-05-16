@@ -6,6 +6,7 @@ from .models import Clinics
 
 
 
+
 class GetDrReservationsSerializer(serializers.ModelSerializer):
 
     user = serializers.StringRelatedField()
