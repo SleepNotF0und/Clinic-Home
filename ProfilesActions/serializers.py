@@ -7,6 +7,14 @@ from .models import Notifications
 
 
 
+
+
+class PtProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Patients
+        fields = ['gender','dateofbirth','age','address','city','district','blood','heigh','weight' ]
+
+
 class InfoUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser

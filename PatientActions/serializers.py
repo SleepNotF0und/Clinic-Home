@@ -14,9 +14,6 @@ class SearchByNameSerializer(serializers.ModelSerializer):
 
 
 class SearchClinicByCitySerializer(serializers.ModelSerializer):
-
-    user = serializers.StringRelatedField()
-
     class Meta:
         model = Clinics
         fields = '__all__'
@@ -24,9 +21,6 @@ class SearchClinicByCitySerializer(serializers.ModelSerializer):
 
 
 class DoctorCommentsSerializer(serializers.ModelSerializer):
-
-    user = serializers.StringRelatedField()
-
     class Meta:
         model = Comments
         fields = ['user','comment']
@@ -36,6 +30,12 @@ class DoctorClinicsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Clinics
         fields = '__all__'
+
+
+class DoctorCitiesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Clinics
+        fields = ['city']
 
 
 class GetPtReservationsSerializer(serializers.ModelSerializer):
@@ -49,9 +49,6 @@ class GetPtReservationsSerializer(serializers.ModelSerializer):
 
 
 class ViewClinicSerializer(serializers.ModelSerializer):
-
-    user = serializers.StringRelatedField()
-    
     class Meta:
         model = Clinics
         fields = '__all__'

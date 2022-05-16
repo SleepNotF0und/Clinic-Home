@@ -351,7 +351,7 @@ def ForgetPassword(request):
 
             #SEND~OTP~CODE~VIA~EMAIL
             subject = Email
-            message = "Hello From Health+, Visit this Link to Reset Your Password http://127.0.0.1:8000/login/api/ResetPassword/"+str(CurrentUser.id)
+            message = "Hello From Health+, Here is your OTP "+str(CurrentUser.otp)+" to Reset Your Password"
             email_form = settings.EMAIL_HOST
             send_mail(subject, message, email_form, [Email])
 
@@ -373,19 +373,26 @@ def ResetPassword(request, id):
 
         try:
             CurrentUser = get_user_model().objects.get(id=id)
-
+            UserOTP = CurrentUser.otp
+            
+            OTP = request.data['otp']
             NewPassword = request.data['password']
             ReNewPassword = request.data['re-password']
 
-            if NewPassword == ReNewPassword:
+            if OTP != UserOTP:
+                content = {"status":False, "details":"OTP Not valid"}     
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+            elif NewPassword != ReNewPassword:
+                content = {"status":False, "details":"Passwords didn't Match"}     
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+            else:
                 CurrentUser.password = NewPassword
                 CurrentUser.save()
 
                 content = {"status":True, "details":"Password Reseted"}     
                 return Response(content, status=status.HTTP_201_CREATED)
-            else:
-                content = {"status":False, "details":"Passwords didn't Match"}     
-                return Response(content, status=status.HTTP_400_BAD_REQUEST)
         
         except get_user_model().DoesNotExist:
             content = {"status":False, "details":"User ID Not Found"}     

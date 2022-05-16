@@ -73,6 +73,21 @@ def ViewDoctorProfile(request, id):
             DoctorComments = Comments.objects.filter(doctor=GetDoctor.id)
             DoctorComments_srz = DoctorCommentsSerializer(DoctorComments, many=True)
 
+            data = { 'comments': [] }
+            for ele in DoctorComments_srz.data:
+                GetPatientUser = CustomUser.objects.get(id=ele['user'])          
+                GetImage = GetPatientUser.profile_pic
+
+                if GetImage and hasattr(GetImage, 'url'):
+                    CurrentImage = GetImage.url
+                else:
+                    CurrentImage = "User has No Profile Pic"
+                
+                if GetUser:
+                    ele['user'] = GetPatientUser.username
+                    ele['profile_pic'] = CurrentImage
+                    data['comments'].append(ele)
+
             content = {
                 "status":True,
                 "doctor":GetUser.username, 
@@ -80,7 +95,7 @@ def ViewDoctorProfile(request, id):
                 "specialize":GetDoctor.specialize,
                 "price":GetDoctor.price,
                 "info":GetDoctor.info,
-                "comments":DoctorComments_srz.data
+                "patients comments":data
             }
             return Response(content, status=status.HTTP_200_OK)
         
@@ -101,10 +116,12 @@ def ViewDoctorClinics(request, id):
 
             DoctorClinics = Clinics.objects.filter(user=GetUser.id)
             DoctorClinics_srz = DoctorClinicsSerializer(DoctorClinics, many=True)
+            DoctorCities_srz = DoctorCitiesSerializer(DoctorClinics, many=True)
 
             content = {
                 "status":True,
                 "doctor":GetUser.username, 
+                "available cities":DoctorCities_srz.data,
                 "clinics":DoctorClinics_srz.data
             }
             return Response(content, status=status.HTTP_200_OK)
@@ -145,23 +162,30 @@ def Reserve(request):
                         content = {"status":False, "details":"the doctor doesn't work in this clinic !"}     
                         return Response(content, status=status.HTTP_400_BAD_REQUEST) 
 
-                    #CREATE~RESERVATION
-                    Reservations.objects.create(user=CurrentUser, doctor=GetDoctorId, opptdate=SetTime, clinic=GetClinic)
-                
-                    #FIRE~A~NOTIFICATION~TO~THE~DOCTOR
-                    Notifications.objects.create(currentuser=CurrentUser, doctor=GetDoctorId, message=CurrentUser.username+" Request an oppointment with you in clinic "+GetClinic.clinicname)
+                    #CHECK~IF~PATIENT~HAVE~MOBILE
+                    if GetUser.mobile != None:
 
-                    content = {
-                        "status":True, 
-                        "details":"Reservation Created Thank You", 
-                        "doctor":GetDoctorUser.username,
-                        "price":GetDoctorId.price,
-                        "clinic name":GetClinic.clinicname,
-                        "clinic city":GetClinic.city,
-                        "clinic address":GetClinic.address,
-                        "requested time":SetTime
-                        }
-                    return Response(content, status=status.HTTP_201_CREATED)
+                        #CREATE~RESERVATION
+                        Reservations.objects.create(user=CurrentUser, doctor=GetDoctorId, opptdate=SetTime, clinic=GetClinic)
+                    
+                        #FIRE~A~NOTIFICATION~TO~THE~DOCTOR
+                        Notifications.objects.create(currentuser=CurrentUser, doctor=GetDoctorId, message=CurrentUser.username+" Request an oppointment with you in clinic "+GetClinic.clinicname)
+
+                        content = {
+                            "status":True, 
+                            "details":"Reservation Created Thank You", 
+                            "doctor":GetDoctorUser.username,
+                            "price":GetDoctorId.price,
+                            "clinic name":GetClinic.clinicname,
+                            "clinic city":GetClinic.city,
+                            "clinic address":GetClinic.address,
+                            "requested time":SetTime
+                            }
+                        return Response(content, status=status.HTTP_201_CREATED)
+
+                    else:
+                        content = {"status":False, "details":"Please fill your mobile in profile settings, so doctor can confirm the reservation with you"}     
+                        return Response(content, status=status.HTTP_400_BAD_REQUEST) 
                 
                 else:
                     content = {"status":False, "details":"You already Have Reservation with that doctor !"}     
@@ -355,8 +379,16 @@ def ViewClinic(request, id):
         try:
             GetClinic = Clinics.objects.filter(id=id)
             GetClinic_srz = ViewClinicSerializer(GetClinic, many=True)
+
+            data = { 'data': [] }
+            for ele in GetClinic_srz.data:
+                GetDoctorUser = CustomUser.objects.get(id=ele['user'])          
+                
+                if GetDoctorUser:
+                    ele['user'] = GetDoctorUser.username
+                    data['data'].append(ele)
         
-            content = {"status":True, "data":GetClinic_srz.data}     
+            content = {"status":True, "clinic":data}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
         except Clinics.DoesNotExist:

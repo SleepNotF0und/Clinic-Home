@@ -37,10 +37,14 @@ def PtUserProfile(request):
         else:
             CurrentImage = "User has No Profile Pic"
 
+        GetPatient = Patients.objects.filter(user=CurrentUser)
+        PtProfile_srz = PtProfileSerializer(GetPatient, many=True)
+
     content = {
         "status":True, 
         "username":CurrentUser.username, 
-        "ImageURL":CurrentImage
+        "ImageURL":CurrentImage,
+        "info":PtProfile_srz.data
         }
     return Response(content, status=status.HTTP_200_OK)
 
@@ -69,8 +73,11 @@ def DrUserProfile(request):
                 "status":True, 
                 "username":CurrentUser.username, 
                 "imageURL":CurrentImage, 
+                "info":GetDoctor.info,
+                "gender":GetDoctor.gender,
+                "date of birth":GetDoctor.dateofbirth,
                 "specialize":GetDoctor.specialize, 
-                "info":GetDoctor.info
+                "price":GetDoctor.price
                 }
             return Response(content, status=status.HTTP_200_OK)
         
@@ -146,14 +153,14 @@ def ImageUpdate(request):
         CurrentUser = request.user
 
         try:
-            GetUser = get_user_model().objects.get(username=CurrentUser.username)
+            GetUser = get_user_model().objects.get(id=CurrentUser.id)
             GetUser.profile_pic = request.data['image']
             GetUser.save()
 
             content = {"status":True, "username":GetUser.username, "detials":"Image Updated"}
             return Response(content, status=status.HTTP_200_OK)
         
-        except:
+        except get_user_model().DoesNotExist:
             content = {"status":False, "details":"Your account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
@@ -212,7 +219,7 @@ def PasswordUpdate(request):
                     return Response(content, status=status.HTTP_403_FORBIDDEN) 
 
             else:
-                content = {"status":False, "username":GetUser.username, "details":"current password uncorrect"}
+                content = {"status":False, "username":GetUser.username, "details":"Current Password uncorrect"}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST) 
         
         except get_user_model().DoesNotExist:

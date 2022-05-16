@@ -130,7 +130,7 @@ class PatientCreateSerializer(serializers.ModelSerializer):
             mobile=CurrentUserMobile,
             otp=CurrentUserOtp,
             is_verified=True, 
-            is_doctor=True
+            is_patient=True
         )
         #NewUser.set_password(self.validated_data['password'])
         NewUser.save()

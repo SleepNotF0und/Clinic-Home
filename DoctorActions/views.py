@@ -50,7 +50,7 @@ def AcceptReservation(request):
                         GetReservation.save()
                         
                         #FIRE~A~NOTIFICATION~TO~THE~PATIENT
-                        Notifications.objects.create(currentuser=CurrentUser, patient=GetPatient, message=CurrentUser.username+" Accepted your Reservation")
+                        Notifications.objects.create(currentuser=CurrentUser, patient=GetPatient, message=CurrentUser.username+" Accepted your Reservation & doctor will call you to confirm the reservation")
 
                         content = {
                             "status":True, 
@@ -143,17 +143,31 @@ def ViewAppointments(request):
 
         try:
             GetUser = get_user_model().objects.get(id=CurrentUser.id)
-            GetImage = CurrentUser.profile_pic
-
             GetDoctor = Doctors.objects.get(user=GetUser.id)
 
             GetDrReservations = Reservations.objects.filter(doctor=GetDoctor)
             GetDrReservations_srz = GetDrReservationsSerializer(GetDrReservations, many=True)
 
+            data = { 'appointments': [] }
+            for ele in GetDrReservations_srz.data:
+                GetPatientUser = CustomUser.objects.get(email=ele['user'])          
+                GetImage = GetPatientUser.profile_pic
+
+                if GetImage and hasattr(GetImage, 'url'):
+                    CurrentImage = GetImage.url
+                else:
+                    CurrentImage = "User has No Profile Pic"
+                
+                if GetUser:
+                    ele['user'] = GetPatientUser.username
+                    ele['profile_link'] = 'https://clinichome.herokuapp.com/api/action/dr/patients/'+str(GetPatientUser.id)+'/'
+                    data['appointments'].append(ele)
+
+
             content = {
                 "status":True, 
-                "username":GetUser.username,
-                "appointments":GetDrReservations_srz.data
+                "doctor":GetUser.username,
+                "data":data
                 }
             return Response(content, status=status.HTTP_200_OK)
         
@@ -271,7 +285,8 @@ def ViewPatientProfile(request, id):
             content = {
                 "status":True,
                 "Username":GetUser.username, 
-                "ImageURL":UserImage, 
+                "ImageURL":UserImage,
+                "Mobile":GetUser.mobile, 
                 "gender":GetPatient.gender,
                 "dateofbirth":GetPatient.dateofbirth,
                 "age":GetPatient.age,
@@ -283,5 +298,5 @@ def ViewPatientProfile(request, id):
             return Response(content, status=status.HTTP_200_OK)
         
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"Patient not found"}     
+            content = {"status":False, "details":"Patient not found Or Not Doctor Id"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
