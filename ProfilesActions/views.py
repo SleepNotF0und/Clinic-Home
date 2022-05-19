@@ -51,6 +51,7 @@ def PtUserProfile(request):
         "status":True, 
         "username":CurrentUser.username, 
         "ImageURL":CurrentImage,
+        "mobile":CurrentUser.mobile,
         "info":PtProfile_srz.data
         }
     return Response(content, status=status.HTTP_200_OK)
