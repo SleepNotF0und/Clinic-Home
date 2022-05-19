@@ -67,9 +67,9 @@ def ViewDoctorProfile(request, id):
 
             #GET~DOCTOR~THANKS
             try:
-                GetThanks = Likes.objects.get(doctor=GetDoctor.id)
+                GetThanks = Thanks.objects.get(doctor=GetDoctor.id)
                 GetDoctorThanks = GetThanks.thanks
-            except Likes.DoesNotExist:
+            except Thanks.DoesNotExist:
                 GetDoctorThanks = 0
 
             #GET~DOCTORS~COMMENTS
@@ -592,7 +592,7 @@ def TopRated(request):
             GetUser = get_user_model().objects.get(id=CurrentUser.id)       
 
             #max_thanks = Thanks.objects.aggregate(Max('thanks'))
-            #get_max = Likes.objects.get(thanks=max_thanks)
+            #get_max = Thanks.objects.get(thanks=max_thanks)
 
             thanks_db = Thanks.objects.all()
             thanks_srz = TopRatedSerializer(thanks_db, many=True)

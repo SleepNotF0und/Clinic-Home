@@ -149,21 +149,23 @@ def Verify_Email(request):
 
 
 @api_view(['POST'])
-@authentication_classes(())
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 #========================
 def Verify_Mobile(request):
     if request.method == 'POST':
+
         mobile = request.data['mobile']
         
         try:
             UserMobile = get_user_model().objects.get(mobile=mobile)
 
-            if UserMobile.is_verified:
+            if UserMobile.is_mobile_verified:
                 content = {"status":False, "details":"Mobile number already taken."}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
             else:
-                OTP = str(random.randint(1000, 9999))
+                OTP = UserMobile.otp
 
                 account_sid = 'ACed031bba4f307f38d7bc646440dda43b'
                 auth_token = '332363210ae724feb2fc08b400d65deb'
@@ -176,16 +178,12 @@ def Verify_Mobile(request):
                             to=UserMobile.mobile
                         )
 
-                UserMobile.otp = OTP
-                UserMobile.save()
-
                 content = {"status":True, "details":"Mobile already taken But Not Verfied, OTP Code Sent to your Mobile."}
                 return Response(content, status=status.HTTP_201_CREATED)
         
         except get_user_model().DoesNotExist:
-            OTP = str(random.randint(1000, 9999))
-            UserMobile = get_user_model().objects.create(mobile=mobile, email="WaitOTPmobile@test.com"+OTP, otp=OTP)
-            UserMobile.save()
+            CurrentUser = request.user
+            OTP = CurrentUser.otp
 
             account_sid = 'ACed031bba4f307f38d7bc646440dda43b'
             auth_token = '332363210ae724feb2fc08b400d65deb'
@@ -195,7 +193,7 @@ def Verify_Mobile(request):
             message = client.messages.create(
                         body='Hello From Health+, Your OTP is '+ OTP,
                         from_='+17622310919',
-                        to=UserMobile.mobile
+                        to=UserMobile.email
                     )
 
             content = {"status":True, "details":"OTP Code Send to your Mobile."}
@@ -207,7 +205,7 @@ def Verify_Mobile(request):
 @api_view(['POST'])
 @authentication_classes(())
 #========================
-def Verify_OTP(request):
+def Email_OTP_Verify(request):
     if request.method == 'POST':
         OTP = request.data['otp']
 
@@ -222,7 +220,39 @@ def Verify_OTP(request):
                 Get_UserToken = Token.objects.get(user=CurrentUser.id)
                 Key = Get_UserToken.key
 
-                content = {"status":True, "details":"Valid OTP Code, User Varified.", "token": Key.encode('utf-8')}
+                content = {"status":True, "details":"Valid OTP Code, Email Varified.", "token": Key.encode('utf-8')}
+                return Response(content, status=status.HTTP_201_CREATED)
+
+            else:
+                content = {"status":False, "details":"Unvalid OTP Code."}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        except get_user_model().DoesNotExist:
+            content = {"status":False, "details":"Unvalid OTP Code."}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+@api_view(['POST'])
+@authentication_classes(())
+#========================
+def Mobile_OTP_Verify(request):
+    if request.method == 'POST':
+        OTP = request.data['otp']
+
+        try:
+            CurrentUser = CustomUser.objects.get(otp=OTP)
+
+            if CurrentUser.otp == OTP:
+                CurrentUser.is_mobile_verified = True
+                CurrentUser.save()
+
+                #GET~USER~TOKEN~&~RETURN~IN~RESPONSE
+                Get_UserToken = Token.objects.get(user=CurrentUser.id)
+                Key = Get_UserToken.key
+
+                content = {"status":True, "details":"Valid OTP Code, Mobile Varified."}
                 return Response(content, status=status.HTTP_201_CREATED)
 
             else:
