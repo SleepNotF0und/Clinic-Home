@@ -3,7 +3,7 @@ from django.db.models.signals import post_save
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django.dispatch import receiver
 
@@ -109,6 +109,8 @@ class Topics(models.Model):
     title = models.CharField(max_length=50, null=True)
     topic_image = CloudinaryField('topic_image')
     body = models.TextField(max_length=1500, null=True)
+
+    date = models.DateTimeField(auto_now_add=True ,blank=True, null=True)
 
     class Meta:
         verbose_name = _("Topic")

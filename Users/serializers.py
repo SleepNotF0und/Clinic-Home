@@ -25,30 +25,13 @@ class DoctorsCategorySerializer(serializers.ModelSerializer):
 class AllTopicsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Topics
-        fields = ['id','title','body']
+        fields = '__all__'
+
 
 class TopicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Topics
         fields = '__all__'
-
-
-class VerifyEmailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['email','is_verified']
-
-
-class VerifyMobileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['mobile','is_verified']
-
-
-class VerifyOTPSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['otp','is_verified']
 
 
 
@@ -65,28 +48,15 @@ class DoctorCreateSerializer(serializers.ModelSerializer):
         fields = ['username','password','info','gender','dateofbirth','specialize','price']
 
     def save(self):
+        CurrentUser = self.context['request'].user
 
-        CurrentUser = get_user_model().objects.get(username="OTP-Verified")
-        CurrentUserEmail = CurrentUser.email
-        CurrentUserOtp = CurrentUser.otp
-        CurrentUserMobile = CurrentUser.mobile
-        
-        CurrentUser.delete()
-
-        NewUser = CustomUser(
-            username=self.validated_data['username'],
-            password=self.validated_data['password'],           
-            email=CurrentUserEmail,
-            mobile=CurrentUserMobile,
-            otp=CurrentUserOtp,
-            is_verified=True, 
-            is_doctor=True
-        )
-        #NewUser.set_password(self.validated_data['password'])
-        NewUser.save()
+        CurrentUser.username = self.validated_data['username']
+        CurrentUser.password = self.validated_data['password']
+        CurrentUser.is_doctor = True
+        CurrentUser.save()
 
         NewDoctor = Doctors(
-            user=NewUser, 
+            user=CurrentUser, 
             info=self.validated_data['info'], 
             gender=self.validated_data['gender'],  
             dateofbirth=self.validated_data['dateofbirth'], 
@@ -101,8 +71,6 @@ class DoctorCreateSerializer(serializers.ModelSerializer):
 class PatientCreateSerializer(serializers.ModelSerializer):
     gender = serializers.CharField(max_length=6,required=True)
     city = serializers.CharField(max_length=10, required=True)
-    #district = serializers.CharField(max_length=20, required=True)
-    #address = serializers.CharField(max_length=40, required=True)
     dateofbirth = serializers.CharField(max_length=10, required=True)
     age = serializers.CharField(max_length=5, required=True)
     blood = serializers.CharField(max_length=10, required=True)
@@ -115,32 +83,17 @@ class PatientCreateSerializer(serializers.ModelSerializer):
         fields = ['username','password','gender','city','dateofbirth','age','blood','heigh','weight']
 
     def save(self):
-        CurrentUser = get_user_model().objects.get(username="OTP-Verified")
+        CurrentUser = self.context['request'].user
 
-        CurrentUserEmail = CurrentUser.email
-        CurrentUserOtp = CurrentUser.otp
-        CurrentUserMobile = CurrentUser.mobile
-        
-        CurrentUser.delete()
-
-        NewUser = CustomUser(
-            username=self.validated_data['username'],
-            password=self.validated_data['password'],           
-            email=CurrentUserEmail,
-            mobile=CurrentUserMobile,
-            otp=CurrentUserOtp,
-            is_verified=True, 
-            is_patient=True
-        )
-        #NewUser.set_password(self.validated_data['password'])
-        NewUser.save()
+        CurrentUser.username = self.validated_data['username']
+        CurrentUser.password = self.validated_data['password']
+        CurrentUser.is_patient = True
+        CurrentUser.save()
 
         NewPatient = Patients(
-            user=NewUser,  
+            user=CurrentUser,  
             gender=self.validated_data['gender'], 
             city=self.validated_data['city'],
-            #district=self.validated_data['district'],
-            #address=self.validated_data['address'],
             dateofbirth=self.validated_data['dateofbirth'],
             age=self.validated_data['age'], 
             blood=self.validated_data['blood'],

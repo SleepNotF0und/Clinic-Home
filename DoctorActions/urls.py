@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import ClinicImageUpload
 
 
 
@@ -14,8 +15,10 @@ urlpatterns = [
 
     #DOCTOR~CREATE~CLINIC~ENDPOINT----/action/dr/clinic/create/
     #DOCTOR~UPDATE~CLINIC~ENDPOINT----/action/dr/clinic/update/
+    #DOCTOR~UPLOAD~CLINIC~IMAGE~ENDPOINT----/action/dr/clinic/upload/
     path('clinic/create/', views.CreateClinic, name="CreateClinic"),
     path('clinic/update/', views.UpdateClinic, name="UpdateClinic"),
+    path('clinic/upload/', ClinicImageUpload.as_view(), name="ClinicImageUpload"),
 
     #DOCTOR~APPOINTMENTS~ENDPOINT-----/action/dr/appointments/
     path('appointments/', views.ViewAppointments, name="ViewAppointments"),
