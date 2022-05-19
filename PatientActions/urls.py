@@ -17,15 +17,19 @@ urlpatterns = [
     #VIEW~DOCTOR~PROFILE~ENDPOINT--/action/pt/drs/21/
     #VIEW~DOCTOR~CLINICS~ENDPOINT--/action/pt/drs/21/clinics/
     #VIEW~CLINIC~PAGE~ENDPOINT--/action/pt/clinics/3/
+    #VIEW~TOP~RATED~ENDPOINT---/action/pt/drs/topRated/
     path('drs/<int:id>/', views.ViewDoctorProfile, name="ViewDoctorProfile"),
     path('drs/<int:id>/clinics/', views.ViewDoctorClinics, name="ViewDoctorClinics"),
     path('clinics/<int:id>/', views.ViewClinic, name="ViewClinic"),
+    path('drs/TopRated/', views.TopRated, name="TopRated"),
 
     
     #RESERVE~ENDPOINT----/action/pt/reserve/create/
     #DELETE~RESERVE~ENDPOINT---/action/pt/reserve/delete/
+    #VIEW~PATIENT~RESERVATIONS-----/action/pt/reservations/
     path('reservation/create/', views.Reserve, name="CreateReservation"),
     path('reservation/delete/', views.DeleteReserve, name="DeleteReservation"),
+    path('reservations/', views.ViewReservations, name="ViewReservations"),
 
 
     #COMMENT~ENDPOINT---/action/pt/comment/create/
@@ -34,7 +38,11 @@ urlpatterns = [
     path('comment/delete/', views.DeleteComment, name="DeleteComment"),
 
 
-    #VIEW~PATIENT~RESERVATIONS-----/action/pt/reservations/
-    path('reservations/', views.ViewReservations, name="ViewReservations"),
+    #THANKS~ENDPOINT----/action/pt/add/thanks/
+    #PREVIEW~ENDPOINT---/action/pt/add/preview/
+    path('add/thanks/', views.MakeThanks, name="MakeThanks"),
+    path('add/preview/', views.MakePreview, name="MakePreview"),
+    path('undo/thanks/', views.UndoThanks, name="UndoThanks"),
+    path('undo/preview/', views.UndoPreview, name="UndoPreview"),
 
 ]

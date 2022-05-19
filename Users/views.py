@@ -1,8 +1,10 @@
+from multiprocessing import context
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.utils.translation import gettext as _
 
 from django.contrib.auth import authenticate, get_user_model
+from django.db import IntegrityError
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
@@ -105,51 +107,44 @@ def ViewTopic(request, id):
 #========================
 def Verify_Email(request):
     if request.method == 'POST':
+        email = request.data['email']
+        
+        try:
+            UserEmail = get_user_model().objects.get(email=email)
 
-        VerifyEmail_srz = VerifyEmailSerializer(data=request.data) 
-        if VerifyEmail_srz.is_valid(raise_exception=True):
+            if UserEmail.is_verified:
+                content = {"status":False, "details":"Email address already taken."}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-            email = VerifyEmail_srz.data['email']
-            
-            try:
-                UserEmail = get_user_model().objects.get(email=email)
-
-                if UserEmail.is_verified:
-                    content = {"status":False, "details":"Email address already taken."}
-                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-                else:
-                    #SEND~OTP~CODE~VIA~EMAIL
-                    subject = UserEmail
-                    OTP = random.randint(1000, 9999)
-                    message = "Hello From Health+, Your OTP Code " + str(OTP)
-                    email_form = settings.EMAIL_HOST
-                    send_mail(subject, message, email_form, [email])
-
-                    #SAVE~OTP~INTO~THE~USER~TABLE
-                    UserEmail.otp = OTP
-                    UserEmail.save()
-
-                    content = {"status":True, "details":"Email address already taken But Not Verfied, OTP Code Sent to your Email."}
-                    return Response(content, status=status.HTTP_201_CREATED)
-            
-            except get_user_model().DoesNotExist:
-                OTP = str(random.randint(1000, 9999))
-                UserEmail = get_user_model().objects.create(email=email, otp=OTP)
-                UserEmail.save()
-
+            else:
                 #SEND~OTP~CODE~VIA~EMAIL
-                subject = "clinic home"
-                message = "Hello From Health+, Your OTP Code " + OTP
+                subject = UserEmail
+                OTP = random.randint(1000, 9999)
+                message = "Hello From Health+, Your OTP Code " + str(OTP)
                 email_form = settings.EMAIL_HOST
                 send_mail(subject, message, email_form, [email])
 
-                content = {"status":True, "details":"OTP Code Send to your Email."}
-                return Response(content, status=status.HTTP_201_CREATED)
+                #SAVE~OTP~INTO~THE~USER~TABLE
+                UserEmail.otp = OTP
+                UserEmail.save()
 
-        else:
-            content = {"status":False, "details":"serializer Error."}
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                content = {"status":True, "details":"Email address already taken But Not Verfied, OTP Code Sent to your Email."}
+                return Response(content, status=status.HTTP_201_CREATED)
+        
+        except get_user_model().DoesNotExist:
+            OTP = str(random.randint(1000, 9999))
+            UserEmail = get_user_model().objects.create(email=email, otp=OTP)
+            UserEmail.save()
+
+            #SEND~OTP~CODE~VIA~EMAIL
+            subject = "clinic home"
+            message = "Hello From Health+, Your OTP Code " + OTP
+            email_form = settings.EMAIL_HOST
+            send_mail(subject, message, email_form, [email])
+
+            content = {"status":True, "details":"OTP Code Send to your Email."}
+            return Response(content, status=status.HTTP_201_CREATED)
+
 
 
 
@@ -158,43 +153,17 @@ def Verify_Email(request):
 #========================
 def Verify_Mobile(request):
     if request.method == 'POST':
+        mobile = request.data['mobile']
+        
+        try:
+            UserMobile = get_user_model().objects.get(mobile=mobile)
 
-        VerifyMobile_srz = VerifyMobileSerializer(data=request.data)
-        if VerifyMobile_srz.is_valid(raise_exception=True):
+            if UserMobile.is_verified:
+                content = {"status":False, "details":"Mobile number already taken."}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-            mobile = VerifyMobile_srz.data['mobile']
-            
-            try:
-                UserMobile = get_user_model().objects.get(mobile=mobile)
-
-                if UserMobile.is_verified:
-                    content = {"status":False, "details":"Mobile number already taken."}
-                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-                else:
-                    OTP = str(random.randint(1000, 9999))
-
-                    account_sid = 'ACed031bba4f307f38d7bc646440dda43b'
-                    auth_token = '332363210ae724feb2fc08b400d65deb'
-
-                    client = Client(account_sid, auth_token)
-
-                    message = client.messages.create(
-                                body='Hello From Health+, Your OTP is '+OTP,
-                                from_='+17622310919',
-                                to=UserMobile.mobile
-                            )
-
-                    UserMobile.otp = OTP
-                    UserMobile.save()
-
-                    content = {"status":True, "details":"Mobile already taken But Not Verfied, OTP Code Sent to your Mobile."}
-                    return Response(content, status=status.HTTP_201_CREATED)
-            
-            except get_user_model().DoesNotExist:
+            else:
                 OTP = str(random.randint(1000, 9999))
-                UserMobile = get_user_model().objects.create(mobile=mobile, email="WaitOTPmobile@test.com"+OTP, otp=OTP)
-                UserMobile.save()
 
                 account_sid = 'ACed031bba4f307f38d7bc646440dda43b'
                 auth_token = '332363210ae724feb2fc08b400d65deb'
@@ -202,17 +171,36 @@ def Verify_Mobile(request):
                 client = Client(account_sid, auth_token)
 
                 message = client.messages.create(
-                            body='Hello From Health+, Your OTP is '+ OTP,
+                            body='Hello From Health+, Your OTP is '+OTP,
                             from_='+17622310919',
                             to=UserMobile.mobile
                         )
 
-                content = {"status":True, "details":"OTP Code Send to your Mobile."}
-                return Response(content, status=status.HTTP_201_CREATED)
+                UserMobile.otp = OTP
+                UserMobile.save()
 
-        else:
-            content = {"status":False, "details":"serializer Error"}        
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                content = {"status":True, "details":"Mobile already taken But Not Verfied, OTP Code Sent to your Mobile."}
+                return Response(content, status=status.HTTP_201_CREATED)
+        
+        except get_user_model().DoesNotExist:
+            OTP = str(random.randint(1000, 9999))
+            UserMobile = get_user_model().objects.create(mobile=mobile, email="WaitOTPmobile@test.com"+OTP, otp=OTP)
+            UserMobile.save()
+
+            account_sid = 'ACed031bba4f307f38d7bc646440dda43b'
+            auth_token = '332363210ae724feb2fc08b400d65deb'
+
+            client = Client(account_sid, auth_token)
+
+            message = client.messages.create(
+                        body='Hello From Health+, Your OTP is '+ OTP,
+                        from_='+17622310919',
+                        to=UserMobile.mobile
+                    )
+
+            content = {"status":True, "details":"OTP Code Send to your Mobile."}
+            return Response(content, status=status.HTTP_201_CREATED)
+
 
 
 
@@ -221,46 +209,40 @@ def Verify_Mobile(request):
 #========================
 def Verify_OTP(request):
     if request.method == 'POST':
-        VerifyOTP_srz = VerifyOTPSerializer(data=request.data)
+        OTP = request.data['otp']
 
-        if VerifyOTP_srz.is_valid(raise_exception=True):
-            OTP = VerifyOTP_srz.data['otp']
+        try:
+            CurrentUser = CustomUser.objects.get(otp=OTP)
 
-            try:
-                CurrentUser = CustomUser.objects.get(otp=OTP)
+            if CurrentUser.otp == OTP:
+                CurrentUser.is_verified = True
+                CurrentUser.save()
 
-                if CurrentUser.otp == OTP:
-                    CurrentUser.is_verified = True
-                    CurrentUser.username = "OTP-Verified" 
-                    CurrentUser.save()
+                #GET~USER~TOKEN~&~RETURN~IN~RESPONSE
+                Get_UserToken = Token.objects.get(user=CurrentUser.id)
+                Key = Get_UserToken.key
 
-                    #GET~USER~TOKEN~&~RETURN~IN~RESPONSE
-                    Get_UserToken = Token.objects.get(user=CurrentUser.id)
-                    Key = Get_UserToken.key
+                content = {"status":True, "details":"Valid OTP Code, User Varified.", "token": Key.encode('utf-8')}
+                return Response(content, status=status.HTTP_201_CREATED)
 
-                    content = {"status":True, "details":"Valid OTP Code, Email Varified.", "token": Key.encode('utf-8')}
-                    return Response(content, status=status.HTTP_201_CREATED)
-
-                else:
-                    content = {"status":False, "details":"Unvalid OTP Code."}
-                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-            except get_user_model().DoesNotExist:
+            else:
                 content = {"status":False, "details":"Unvalid OTP Code."}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-        else:
-            content = {"status":False, "details":"serializer Error"}        
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except get_user_model().DoesNotExist:
+            content = {"status":False, "details":"Unvalid OTP Code."}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
 @api_view(['POST'])
-@authentication_classes(())
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 #========================
 def Create_Doctor(request):
     if request.method == 'POST':
-        DoctorCreate_srz = DoctorCreateSerializer(data=request.data) 
+        DoctorCreate_srz = DoctorCreateSerializer(context={"request":request}, data=request.data) 
 
         if DoctorCreate_srz.is_valid(raise_exception=True):
             try:
@@ -271,6 +253,10 @@ def Create_Doctor(request):
 
             except get_user_model().DoesNotExist:
                 content = {"status":False, "details":"You Should First Pass Email Or Mobile Validation Endpoint !!"}
+                return Response(content, status=status.HTTP_403_FORBIDDEN)
+            
+            except IntegrityError as e:
+                content = {"status":False, "details":"Other User use this Email !!"}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         
         else:
@@ -280,11 +266,12 @@ def Create_Doctor(request):
 
 
 @api_view(['POST'])
-@authentication_classes(())
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 #========================
 def Create_Patient(request):
     if request.method == 'POST':
-        PatientsCreate_srz = PatientCreateSerializer(data=request.data) 
+        PatientsCreate_srz = PatientCreateSerializer(context={"request":request}, data=request.data) 
 
         if PatientsCreate_srz.is_valid(raise_exception=True):
             try:
@@ -295,6 +282,10 @@ def Create_Patient(request):
             
             except get_user_model().DoesNotExist:
                 content = {"status":False, "details":"You Should First Pass Email Or Mobile Validation Endpoint !!"}
+                return Response(content, status=status.HTTP_403_FORBIDDEN)
+
+            except IntegrityError as e:
+                content = {"status":False, "details":"Other User use this Email !!"}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
         else:
@@ -409,29 +400,5 @@ def SocialLogin(request):
         FacebookSocialAuth_srz.is_valid(raise_exception=True)
         data = ((serializer.validated_data)['auth_token'])
         return Response(data, status=status.HTTP_200_OK)
-
-
-
-'''
-    if request.method == 'DELETE':
-        doctors_db.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT) 
-'''
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

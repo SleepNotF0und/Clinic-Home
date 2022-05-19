@@ -1,27 +1,21 @@
 from django.http import HttpResponse, JsonResponse
-
 from django.core.exceptions import ObjectDoesNotExist
-
 from django.contrib.auth import authenticate, get_user_model
-
+from django.db.models import Max
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.response import Response
 from rest_framework import status
-
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-
 from rest_framework.generics import ListAPIView
-
 from rest_framework.filters import SearchFilter
-
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, IsAuthenticatedOrReadOnly
 
 from Users.models import Doctors, Patients
 from ProfilesActions.models import Notifications
 from DoctorActions.models import Clinics
-from .models import Reservations, Comments
+from .models import *
 
 from .serializers import *
 
@@ -65,11 +59,20 @@ def ViewDoctorProfile(request, id):
 
             GetDoctor = Doctors.objects.get(user=GetUser.id)
 
+            #CHECK~IF~DOCTOR~HAVE~PROFILE~PIC
             if GetImage and hasattr(GetImage, 'url'):
                 UserImage = GetImage.url
             else:
                 UserImage = "User has No Profile Pic"
 
+            #GET~DOCTOR~THANKS
+            try:
+                GetThanks = Likes.objects.get(doctor=GetDoctor.id)
+                GetDoctorThanks = GetThanks.thanks
+            except Likes.DoesNotExist:
+                GetDoctorThanks = 0
+
+            #GET~DOCTORS~COMMENTS
             DoctorComments = Comments.objects.filter(doctor=GetDoctor.id)
             DoctorComments_srz = DoctorCommentsSerializer(DoctorComments, many=True)
 
@@ -91,10 +94,11 @@ def ViewDoctorProfile(request, id):
             content = {
                 "status":True,
                 "doctor":GetUser.username, 
-                "ImageURL":UserImage, 
+                "ImageURL":UserImage,
+                "info":GetDoctor.info, 
                 "specialize":GetDoctor.specialize,
                 "price":GetDoctor.price,
-                "info":GetDoctor.info,
+                "thanks":GetDoctorThanks,
                 "patients comments":data
             }
             return Response(content, status=status.HTTP_200_OK)
@@ -132,6 +136,33 @@ def ViewDoctorClinics(request, id):
 
 
 
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+#========================
+def ViewClinic(request, id):
+    if request.method == 'GET':
+        try:
+            GetClinic = Clinics.objects.filter(id=id)
+            GetClinic_srz = ViewClinicSerializer(GetClinic, many=True)
+
+            data = { 'data': [] }
+            for ele in GetClinic_srz.data:
+                GetDoctorUser = CustomUser.objects.get(id=ele['user'])          
+                
+                if GetDoctorUser:
+                    ele['user'] = GetDoctorUser.username
+                    data['data'].append(ele)
+        
+            content = {"status":True, "clinic":data}     
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+        except Clinics.DoesNotExist:
+            content = {"status":False, "details":"Clinic doesn't exist"}     
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+
 @api_view(['POST'])
 @authentication_classes((TokenAuthentication,))
 @permission_classes((IsAuthenticated,))
@@ -142,11 +173,10 @@ def Reserve(request):
 
         try:
             GetUser = get_user_model().objects.get(id=CurrentUser.id)
-
             if GetUser.is_patient == True:
                 
+                ClinicId = request.data['clinic']
                 DoctorId = request.data['doctor']
-                ClinicName = request.data['clinic']
                 SetTime = request.data['opptdate']
 
                 GetDoctorUser = get_user_model().objects.get(id=DoctorId)
@@ -157,7 +187,7 @@ def Reserve(request):
 
                     try:
                         #GET~DOCTOR'S~CLINIC
-                        GetClinic = Clinics.objects.get(user=GetDoctorUser, clinicname=ClinicName)
+                        GetClinic = Clinics.objects.get(user=GetDoctorUser, id=ClinicId)
                     except Clinics.DoesNotExist:
                         content = {"status":False, "details":"the doctor doesn't work in this clinic !"}     
                         return Response(content, status=status.HTTP_400_BAD_REQUEST) 
@@ -169,7 +199,11 @@ def Reserve(request):
                         Reservations.objects.create(user=CurrentUser, doctor=GetDoctorId, opptdate=SetTime, clinic=GetClinic)
                     
                         #FIRE~A~NOTIFICATION~TO~THE~DOCTOR
-                        Notifications.objects.create(currentuser=CurrentUser, doctor=GetDoctorId, message=CurrentUser.username+" Request an oppointment with you in clinic "+GetClinic.clinicname)
+                        Notifications.objects.create(
+                            currentuser=CurrentUser, 
+                            doctor=GetDoctorId, 
+                            message=CurrentUser.username+" Request an oppointment with you in clinic "+GetClinic.clinicname
+                            )
 
                         content = {
                             "status":True, 
@@ -211,7 +245,6 @@ def DeleteReserve(request):
 
         try:
             GetUser = get_user_model().objects.get(id=CurrentUser.id)
-
             if GetUser.is_patient == True:
                 
                 DoctorId = request.data['doctor']
@@ -223,7 +256,11 @@ def DeleteReserve(request):
                     Reservations.objects.get(user=CurrentUser, doctor=GetDoctorId).delete()
                     
                     #FIRE~A~NOTIFICATION~TO~THE~DOCTOR
-                    Notifications.objects.create(currentuser=CurrentUser, doctor=GetDoctorId, message=CurrentUser.username+" Cancelled his oppointment with you")
+                    Notifications.objects.create(
+                        currentuser=CurrentUser, 
+                        doctor=GetDoctorId, 
+                        message=CurrentUser.username+" Cancelled his oppointment with you"
+                        )
 
                     content = {
                         "status":True, 
@@ -252,6 +289,25 @@ def DeleteReserve(request):
 
 
 
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+#========================
+def ViewReservations(request):
+    if request.method == 'GET':
+        CurrentUser = request.user
+
+        GetPtReservations = Reservations.objects.filter(user=CurrentUser)
+        GetPtReservations_srz = GetPtReservationsSerializer(GetPtReservations, many=True)
+
+        content = {
+            "status":True, 
+            "username":CurrentUser.username, 
+            "Reservations":GetPtReservations_srz.data,
+            }
+        return Response(content, status=status.HTTP_200_OK)
+
+
 
 @api_view(['POST'])
 @authentication_classes((TokenAuthentication,))
@@ -263,7 +319,6 @@ def Comment(request):
 
         try:
             GetUser = get_user_model().objects.get(id=CurrentUser.id)
-
             if GetUser.is_patient == True:
                 
                 DoctorId = request.data['doctor']
@@ -272,11 +327,16 @@ def Comment(request):
                 GetDoctorUser = get_user_model().objects.get(id=DoctorId)
                 GetDoctorId = Doctors.objects.get(user=GetDoctorUser.id)
                 
+                #CHECK~IF~COMMENT~ALREADY~EXISTS
                 if not Comments.objects.filter(user=CurrentUser, doctor=GetDoctorId):
                     Comments.objects.create(user=CurrentUser, doctor=GetDoctorId, comment=Comment)
 
                     #FIRE~A~NOTIFICATION~TO~THE~DOCTOR
-                    Notifications.objects.create(currentuser=CurrentUser, doctor=GetDoctorId, message=CurrentUser.username +" Commented: "+ Comment)
+                    Notifications.objects.create(
+                        currentuser=CurrentUser, 
+                        doctor=GetDoctorId, 
+                        message=CurrentUser.username +" Commented: "+ Comment
+                        )
 
                     content = {
                         "status":True, 
@@ -296,7 +356,7 @@ def Comment(request):
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"doctor not found"}     
+            content = {"status":False, "details":"Your account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -311,7 +371,6 @@ def DeleteComment(request):
 
         try:
             GetUser = get_user_model().objects.get(id=CurrentUser.id)
-
             if GetUser.is_patient == True:
                 
                 DoctorId = request.data['doctor']
@@ -344,7 +403,179 @@ def DeleteComment(request):
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"doctor not found"}     
+            content = {"status":False, "details":"Your account doesn't exist"}     
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(['POST'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+#========================
+def MakeThanks(request):
+    if request.method == 'POST':
+        CurrentUser = request.user
+
+        try:
+            GetUser = get_user_model().objects.get(id=CurrentUser.id)
+            if GetUser.is_patient == True:
+                
+                DoctorId = request.data['doctor']
+                
+                try:
+                    GetDoctorUser = get_user_model().objects.get(id=DoctorId)
+                    GetDoctorId = Doctors.objects.get(user=GetDoctorUser.id)
+
+                    if not Thanks.objects.filter(user=CurrentUser, doctor=GetDoctorId):
+                        Thanks.objects.create(user=CurrentUser, doctor=GetDoctorId, thanks=+1)
+
+                        #FIRE~A~NOTIFICATION~TO~THE~DOCTOR
+                        Notifications.objects.create(
+                            currentuser=CurrentUser,
+                            doctor=GetDoctorId, 
+                            message=CurrentUser.username +" Thanked You"
+                            )
+
+                        content = {"status":True, "details":"Thanks Added"}
+                        return Response(content, status=status.HTTP_201_CREATED)
+
+                    else:
+                        content = {"status":False, "details":"You already thanked that doctor"}
+                        return Response(content, status=status.HTTP_201_CREATED)       
+
+                except get_user_model().DoesNotExist:                   
+                    content = {"status":False, "details":"Doctor not found"}
+                    return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+            else:
+                content = {"status":False, "details":"You are not patient"}     
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        
+        except get_user_model().DoesNotExist:
+            content = {"status":False, "details":"Your account doesn't exist"}     
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(['POST'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+#========================
+def MakePreview(request):
+    if request.method == 'POST':
+        CurrentUser = request.user
+
+        try:
+            GetUser = get_user_model().objects.get(id=CurrentUser.id)
+            if GetUser.is_patient == True:
+                
+                DoctorId = request.data['doctor']
+                
+                try:
+                    GetDoctorUser = get_user_model().objects.get(id=DoctorId)
+                    GetDoctorId = Doctors.objects.get(user=GetDoctorUser.id)
+
+                    if not Previews.objects.filter(user=CurrentUser, doctor=GetDoctorId):
+                        Previews.objects.create(user=CurrentUser, doctor=GetDoctorId, preview=+1)
+
+                        #FIRE~A~NOTIFICATION~TO~THE~DOCTOR
+                        Notifications.objects.create(
+                            currentuser=CurrentUser,
+                            doctor=GetDoctorId, 
+                            message=CurrentUser.username +" Previewed You"
+                            )
+
+                        content = {"status":True, "details":"Preview Added"}
+                        return Response(content, status=status.HTTP_201_CREATED)
+
+                    else:
+                        content = {"status":False, "details":"You already Previewed that doctor"}
+                        return Response(content, status=status.HTTP_201_CREATED)       
+
+                except get_user_model().DoesNotExist:                   
+                    content = {"status":False, "details":"Doctor not found"}
+                    return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+            else:
+                content = {"status":False, "details":"You are not patient"}     
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        
+        except get_user_model().DoesNotExist:
+            content = {"status":False, "details":"Your account doesn't exist"}     
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(['POST'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+#========================
+def UndoThanks(request):
+    if request.method == 'POST':
+        CurrentUser = request.user
+
+        try:
+            GetUser = get_user_model().objects.get(id=CurrentUser.id)
+            if GetUser.is_patient == True:
+                
+                DoctorId = request.data['doctor']
+                
+                try:
+                    GetDoctorUser = get_user_model().objects.get(id=DoctorId)
+                    GetDoctorId = Doctors.objects.get(user=GetDoctorUser.id)
+
+                    Thanks.objects.filter(user=CurrentUser, doctor=GetDoctorId).delete()
+
+                    content = {"status":True, "details":"Thanks Deleted"}
+                    return Response(content, status=status.HTTP_201_CREATED)
+
+                except get_user_model().DoesNotExist:                   
+                    content = {"status":False, "details":"Doctor not found"}
+                    return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+            else:
+                content = {"status":False, "details":"You are not patient"}     
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        
+        except get_user_model().DoesNotExist:
+            content = {"status":False, "details":"Your account doesn't exist"}     
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(['POST'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+#========================
+def UndoPreview(request):
+    if request.method == 'POST':
+        CurrentUser = request.user
+
+        try:
+            GetUser = get_user_model().objects.get(id=CurrentUser.id)
+            if GetUser.is_patient == True:
+                
+                DoctorId = request.data['doctor']
+                
+                try:
+                    GetDoctorUser = get_user_model().objects.get(id=DoctorId)
+                    GetDoctorId = Doctors.objects.get(user=GetDoctorUser.id)
+
+                    Previews.objects.filter(user=CurrentUser, doctor=GetDoctorId).delete()
+
+                    content = {"status":True, "details":"Preview Deleted"}
+                    return Response(content, status=status.HTTP_201_CREATED)
+
+                except get_user_model().DoesNotExist:                   
+                    content = {"status":False, "details":"Doctor not found"}
+                    return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+            else:
+                content = {"status":False, "details":"You are not patient"}     
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        
+        except get_user_model().DoesNotExist:
+            content = {"status":False, "details":"Your account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -353,46 +584,31 @@ def DeleteComment(request):
 @authentication_classes((TokenAuthentication,))
 @permission_classes((IsAuthenticated,))
 #========================
-def ViewReservations(request):
+def TopRated(request):
     if request.method == 'GET':
         CurrentUser = request.user
 
-        GetPtReservations = Reservations.objects.filter(user=CurrentUser)
-        GetPtReservations_srz = GetPtReservationsSerializer(GetPtReservations, many=True)
-
-        content = {
-            "status":True, 
-            "username":CurrentUser.username, 
-            "Reservations":GetPtReservations_srz.data,
-            }
-        return Response(content, status=status.HTTP_200_OK)
-
-
-
-
-@api_view(['GET'])
-@authentication_classes((TokenAuthentication,))
-@permission_classes((IsAuthenticated,))
-#========================
-def ViewClinic(request, id):
-    if request.method == 'GET':
         try:
-            GetClinic = Clinics.objects.filter(id=id)
-            GetClinic_srz = ViewClinicSerializer(GetClinic, many=True)
+            GetUser = get_user_model().objects.get(id=CurrentUser.id)       
 
-            data = { 'data': [] }
-            for ele in GetClinic_srz.data:
-                GetDoctorUser = CustomUser.objects.get(id=ele['user'])          
+            #max_thanks = Thanks.objects.aggregate(Max('thanks'))
+            #get_max = Likes.objects.get(thanks=max_thanks)
+
+            thanks_db = Thanks.objects.all()
+            thanks_srz = TopRatedSerializer(thanks_db, many=True)
+
+            data = { 'top thanks': [] }
+            for ele in thanks_srz.data:
                 
-                if GetDoctorUser:
-                    ele['user'] = GetDoctorUser.username
-                    data['data'].append(ele)
+                if ele['thanks'] >= 20:
+                    data['top thanks'].append(ele)
+                else:
+                    pass
+
+            content = {"status":True, "data":data}     
+            return Response(content, status=status.HTTP_200_OK)
         
-            content = {"status":True, "clinic":data}     
+        except get_user_model().DoesNotExist:
+            content = {"status":False, "details":"Your account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
-
-        except Clinics.DoesNotExist:
-            content = {"status":False, "details":"Clinic doesn't exist"}     
-            return Response(content, status=status.HTTP_404_NOT_FOUND)
-
-    
+        

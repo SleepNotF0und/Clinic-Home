@@ -14,7 +14,7 @@ urlpatterns = [
     #VIEW~TOPIC~ENDPOINT
     path('category/', views.DoctorsCategory, name="category"),
     path('topics/', views.AllTopics, name="topics"),
-    path('topics/<int:id>', views.ViewTopic, name="topic"),
+    path('topics/<int:id>/', views.ViewTopic, name="topic"),
 
 
     #EMAIL~VALIDATION~ENDPOINT

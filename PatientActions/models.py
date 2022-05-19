@@ -2,7 +2,7 @@ from django.db import models
 from Users.models import Doctors, Patients, CustomUser
 from DoctorActions.models import Clinics 
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 
@@ -40,3 +40,30 @@ class Comments(models.Model):
     
     def __str__(self):
         return self.comment
+
+
+
+class Thanks(models.Model):
+    user = models.ForeignKey(CustomUser, related_name='Thanks', on_delete=models.CASCADE)
+    doctor = models.ForeignKey(Doctors, related_name='Thanks', on_delete=models.CASCADE)
+
+    thanks = models.IntegerField(null=True, blank=True, default=0)
+
+    class Meta:
+        verbose_name = _("Thank")
+        verbose_name_plural = _("Thanks") 
+
+
+
+class Previews(models.Model):
+    user = models.ForeignKey(CustomUser, related_name='Previews', on_delete=models.CASCADE)
+    doctor = models.ForeignKey(Doctors, related_name='Previews', on_delete=models.CASCADE)
+
+    preview = models.IntegerField(null=True, blank=True, default=0)
+
+    class Meta:
+        verbose_name = _("Preview")
+        verbose_name_plural = _("Previews") 
+
+
+    

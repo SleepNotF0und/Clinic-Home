@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from Users.models import Doctors, Patients, CustomUser
 from DoctorActions.models import Clinics
-from .models import Reservations, Comments
+from .models import *
 
 
 
@@ -17,7 +17,6 @@ class SearchClinicByCitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Clinics
         fields = '__all__'
-
 
 
 class DoctorCommentsSerializer(serializers.ModelSerializer):
@@ -52,3 +51,9 @@ class ViewClinicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Clinics
         fields = '__all__'
+
+
+class TopRatedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Thanks
+        fields = ['doctor', 'thanks']

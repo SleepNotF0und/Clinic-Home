@@ -1,16 +1,19 @@
 from django.http import HttpResponse, JsonResponse
-
 from django.core.exceptions import ObjectDoesNotExist
-
 from django.contrib.auth import authenticate, get_user_model
 
+from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.response import Response
 from rest_framework import status
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
+from rest_framework import permissions
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, IsAuthenticatedOrReadOnly
+
+import cloudinary.uploader
 
 from Users.models import Doctors, Patients
 from PatientActions.models import Reservations, Comments
@@ -192,7 +195,6 @@ def CreateClinic(request):
             if GetUser.is_doctor == True:
                 
                 ClinicName = request.data['clinicname']
-                Clinic_image = request.data['clinic_image']
                 WorkHours = request.data['workhours']
                 
                 City = request.data['city']
@@ -202,7 +204,6 @@ def CreateClinic(request):
                 #CREATE~CLINIC
                 Clinics.objects.create(
                     user=CurrentUser, 
-                    clinic_image=Clinic_image,
                     clinicname=ClinicName, 
                     workhours=WorkHours, 
                     city=City, 
@@ -242,16 +243,14 @@ def UpdateClinic(request):
 
             if GetUser.is_doctor == True:
 
-                GetClinic = Clinics.objects.get(user=GetUser)
+                ClinicId = request.data['clinic']
+                GetClinic = Clinics.objects.get(user=GetUser, id=ClinicId)
 
                 ClinicUpdate_srz = ClinicUpdateSerializer(GetClinic, data=request.data)                
                 if ClinicUpdate_srz.is_valid(raise_exception=True):
                     ClinicUpdate_srz.save()
             
-                content = {
-                    "status":True, 
-                    "details":"Clinic Updated" 
-                    }
+                content = {"status":True, "details":"Clinic Updated"}
                 return Response(content, status=status.HTTP_201_CREATED)
                
             else:
@@ -261,6 +260,49 @@ def UpdateClinic(request):
         except get_user_model().DoesNotExist:
             content = {"status":False, "details":"Your account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+#CLINIC~IMAGE~UPLOAD
+@authentication_classes((TokenAuthentication,))
+class ClinicImageUpload(APIView):
+    parser_classes = (MultiPartParser, JSONParser,)
+    
+    permission_classes = [
+       permissions.IsAuthenticated  
+   ]
+
+    @staticmethod
+    def post(request):
+        CurrentUser = request.user
+
+        try:
+            GetUser = get_user_model().objects.get(id=CurrentUser.id)
+
+            if GetUser.is_doctor == True:
+
+                ClinicId = request.data['clinic']
+                GetClinic = Clinics.objects.get(user=GetUser, id=ClinicId)
+
+                file = request.data.get('clinic_image')
+
+                upload_data = cloudinary.uploader.upload(file)
+                
+                GetClinic.clinic_image = upload_data['url'][50:]
+                GetClinic.save()
+
+                content = {"status":True, "username":GetUser.username, "detials":"Clinic Image Updated", "data": upload_data}
+                return Response(content, status=status.HTTP_200_OK)
+               
+            else:
+                content = {"status":False, "details":"You are not doctor !"}     
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        except get_user_model().DoesNotExist:
+            content = {"status":False, "details":"Your account doesn't exist"}     
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
 
 
 

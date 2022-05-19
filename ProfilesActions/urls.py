@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import ProfileImageUpload
 
 
 
@@ -18,7 +19,7 @@ urlpatterns = [
     
     
     #PROFILE~SETTINGS~ENDPOINTS
-    path('ImageUpdate/', views.ImageUpdate, name="ImageUpdate"),
+    path('ImageUpdate/', ProfileImageUpload.as_view(), name="ProfileImageUpload"),
     path('InfoUpdate/', views.InfoUpdate, name="InfoUpdate"),
     path('PasswordUpdate/', views.PasswordUpdate, name="PasswordUpdate"),
 

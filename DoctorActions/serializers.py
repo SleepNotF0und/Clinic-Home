@@ -20,4 +20,4 @@ class GetDrReservationsSerializer(serializers.ModelSerializer):
 class ClinicUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Clinics
-        fields = ['clinicname','workhours','city','district','address','clinic_image']
+        fields = ['clinicname','workhours','city','district','address']
