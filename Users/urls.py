@@ -19,10 +19,12 @@ urlpatterns = [
 
     #EMAIL~VALIDATION~ENDPOINT
     #MOBILE~VALIDATION~ENDPOINT
-    #OPT~VALIDATION~ENDPOINT
-    path('verify_email/', views.Verify_Email, name="VerifyEmail"),
-    path('verify_mobile/', views.Verify_Mobile, name="VerifyOTP"),
-    path('verify_OTP/', views.Verify_OTP, name="VerifyOTP"),
+    #EMAIL~OTP~VALIDATION~ENDPOINT
+    #MOBILE~OTP~VALIDATION~ENDPOINT
+    path('verify/email/', views.Verify_Email, name="VerifyEmail"),
+    path('verify/mobile/', views.Verify_Mobile, name="VerifyOTP"),
+    path('verify/otp/email/', views.Email_OTP_Verify, name="Email_OTP_Verify"),
+    path('verify/otp/mobile/', views.Mobile_OTP_Verify, name="Mobile_OTP_Verify"),
 
 
     #SIGN~UP~ENDPOINTS

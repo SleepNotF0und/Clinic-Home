@@ -54,6 +54,7 @@ class CustomUser(AbstractUser):
     is_patient = models.BooleanField(default=False)
     is_doctor = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
+    is_mobile_verified = models.BooleanField(default=False)
     
     objects = CustomUserManager() 
     
