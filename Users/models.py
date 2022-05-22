@@ -67,6 +67,9 @@ class Doctors(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     info = models.TextField(max_length=100)
     gender = models.CharField(max_length=10, null=True)
+
+    accept_insurance = models.BooleanField(default=False, null=True, blank=True)
+    insurance_companies = models.TextField(max_length=100, null=True, blank=True)
     
     dateofbirth = models.CharField(max_length=10, null=True)
 

@@ -149,60 +149,6 @@ def Verify_Email(request):
 
 
 @api_view(['POST'])
-@authentication_classes((TokenAuthentication,))
-@permission_classes((IsAuthenticated,))
-#========================
-def Verify_Mobile(request):
-    if request.method == 'POST':
-
-        mobile = request.data['mobile']
-        
-        try:
-            UserMobile = get_user_model().objects.get(mobile=mobile)
-
-            if UserMobile.is_mobile_verified:
-                content = {"status":False, "details":"Mobile number already taken."}
-                return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-            else:
-                OTP = UserMobile.otp
-
-                account_sid = 'ACed031bba4f307f38d7bc646440dda43b'
-                auth_token = '332363210ae724feb2fc08b400d65deb'
-
-                client = Client(account_sid, auth_token)
-
-                message = client.messages.create(
-                            body='Hello From Health+, Your OTP is '+OTP,
-                            from_='+17622310919',
-                            to=UserMobile.mobile
-                        )
-
-                content = {"status":True, "details":"Mobile already taken But Not Verfied, OTP Code Sent to your Mobile."}
-                return Response(content, status=status.HTTP_201_CREATED)
-        
-        except get_user_model().DoesNotExist:
-            CurrentUser = request.user
-            OTP = CurrentUser.otp
-
-            account_sid = 'ACed031bba4f307f38d7bc646440dda43b'
-            auth_token = '332363210ae724feb2fc08b400d65deb'
-
-            client = Client(account_sid, auth_token)
-
-            message = client.messages.create(
-                        body='Hello From Health+, Your OTP is '+ OTP,
-                        from_='+17622310919',
-                        to=UserMobile.email
-                    )
-
-            content = {"status":True, "details":"OTP Code Send to your Mobile."}
-            return Response(content, status=status.HTTP_201_CREATED)
-
-
-
-
-@api_view(['POST'])
 @authentication_classes(())
 #========================
 def Email_OTP_Verify(request):
@@ -235,14 +181,15 @@ def Email_OTP_Verify(request):
 
 
 @api_view(['POST'])
-@authentication_classes(())
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 #========================
 def Mobile_OTP_Verify(request):
     if request.method == 'POST':
         OTP = request.data['otp']
 
         try:
-            CurrentUser = CustomUser.objects.get(otp=OTP)
+            CurrentUser = request.user
 
             if CurrentUser.otp == OTP:
                 CurrentUser.is_mobile_verified = True
@@ -260,7 +207,7 @@ def Mobile_OTP_Verify(request):
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"Unvalid OTP Code."}
+            content = {"status":False, "details":"Your account doesn't exist."}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -278,17 +225,27 @@ def Create_Doctor(request):
             try:
                 DoctorCreate_srz.save()
 
-                content = {"status":True, "is_doctor":True, "details":"Account Created"}     
+                CurrentUser = request.user
+                OTP = CurrentUser.otp
+
+                account_sid = 'ACed031bba4f307f38d7bc646440dda43b'
+                auth_token = '332363210ae724feb2fc08b400d65deb'
+
+                client = Client(account_sid, auth_token)
+
+                message = client.messages.create(
+                            body='Hello From Health+, Your OTP is '+ OTP,
+                            from_='+17622310919',
+                            to=DoctorCreate_srz.data['mobile']
+                        )
+
+                content = {"status":True, "is_doctor":True, "details":"Account Created, OTP Code Send to your Mobile."}     
                 return Response(content, status=status.HTTP_201_CREATED)
 
-            except get_user_model().DoesNotExist:
-                content = {"status":False, "details":"You Should First Pass Email Or Mobile Validation Endpoint !!"}
-                return Response(content, status=status.HTTP_403_FORBIDDEN)
-            
             except IntegrityError as e:
                 content = {"status":False, "details":"Other User use this Email !!"}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        
+            
         else:
             content = {"status":False, "details":"serializer Error"}     
             return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -307,12 +264,22 @@ def Create_Patient(request):
             try:
                 PatientsCreate_srz.save()
 
-                content = {"status":True, "is_patient":True, "details":"Account Created"}     
+                CurrentUser = request.user
+                OTP = CurrentUser.otp
+
+                account_sid = 'ACed031bba4f307f38d7bc646440dda43b'
+                auth_token = '332363210ae724feb2fc08b400d65deb'
+
+                client = Client(account_sid, auth_token)
+
+                message = client.messages.create(
+                            body='Hello From Health+, Your OTP is '+ OTP,
+                            from_='+17622310919',
+                            to=PatientsCreate_srz.data['mobile']
+                        )
+
+                content = {"status":True, "is_patient":True, "details":"Account Created, OTP Code Send to your Mobile."}     
                 return Response(content, status=status.HTTP_201_CREATED)
-            
-            except get_user_model().DoesNotExist:
-                content = {"status":False, "details":"You Should First Pass Email Or Mobile Validation Endpoint !!"}
-                return Response(content, status=status.HTTP_403_FORBIDDEN)
 
             except IntegrityError as e:
                 content = {"status":False, "details":"Other User use this Email !!"}

@@ -96,6 +96,8 @@ def ViewDoctorProfile(request, id):
                 "doctor":GetUser.username, 
                 "ImageURL":UserImage,
                 "info":GetDoctor.info, 
+                "accept_insurance":GetDoctor.accept_insurance,
+                "insurance_companies":GetDoctor.insurance_companies,
                 "specialize":GetDoctor.specialize,
                 "price":GetDoctor.price,
                 "thanks":GetDoctorThanks,
