@@ -85,6 +85,8 @@ def DrUserProfile(request):
                 "info":GetDoctor.info,
                 "gender":GetDoctor.gender,
                 "date of birth":GetDoctor.dateofbirth,
+                "accept_insurance":GetDoctor.accept_insurance,
+                "insurance_companies":GetDoctor.insurance_companies,
                 "specialize":GetDoctor.specialize, 
                 "price":GetDoctor.price
                 }

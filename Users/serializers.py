@@ -19,7 +19,7 @@ from django.utils.translation import gettext as _
 class DoctorsCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctors
-        fields = ['user','specialize']
+        fields = ['user','specialize','accept_insurance','insurance_companies']
 
 
 class AllTopicsSerializer(serializers.ModelSerializer):
@@ -39,19 +39,22 @@ class DoctorCreateSerializer(serializers.ModelSerializer):
     info = serializers.CharField(max_length=100, required=True)
     gender = serializers.CharField(max_length=6,required=True)
     dateofbirth = serializers.CharField(max_length=10, required=True)
+    accept_insurance = serializers.BooleanField(default=False, required=False, allow_null=True)
+    insurance_companies = serializers.CharField(max_length=100, required=False, allow_blank=True)
     specialize = serializers.CharField(max_length=30, required=True)
     price = serializers.CharField(max_length=10, required=True)
     #image in profile update
 
     class Meta:
         model = CustomUser
-        fields = ['username','password','info','gender','dateofbirth','specialize','price']
+        fields = ['username','password','mobile','info','gender','dateofbirth','accept_insurance','insurance_companies','specialize','price']
 
     def save(self):
         CurrentUser = self.context['request'].user
 
         CurrentUser.username = self.validated_data['username']
         CurrentUser.password = self.validated_data['password']
+        CurrentUser.mobile = self.validated_data['mobile']
         CurrentUser.is_doctor = True
         CurrentUser.save()
 
@@ -59,7 +62,9 @@ class DoctorCreateSerializer(serializers.ModelSerializer):
             user=CurrentUser, 
             info=self.validated_data['info'], 
             gender=self.validated_data['gender'],  
-            dateofbirth=self.validated_data['dateofbirth'], 
+            dateofbirth=self.validated_data['dateofbirth'],
+            accept_insurance=self.validated_data['accept_insurance'],
+            insurance_companies=self.validated_data['insurance_companies'],
             specialize=self.validated_data['specialize'], 
             price=self.validated_data['price']
         )
@@ -80,13 +85,14 @@ class PatientCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['username','password','gender','city','dateofbirth','age','blood','heigh','weight']
+        fields = ['username','password','mobile','gender','city','dateofbirth','age','blood','heigh','weight']
 
     def save(self):
         CurrentUser = self.context['request'].user
 
         CurrentUser.username = self.validated_data['username']
         CurrentUser.password = self.validated_data['password']
+        CurrentUser.mobile = self.validated_data['mobile']
         CurrentUser.is_patient = True
         CurrentUser.save()
 
