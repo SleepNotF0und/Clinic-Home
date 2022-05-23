@@ -39,7 +39,6 @@ class DoctorCitiesSerializer(serializers.ModelSerializer):
 
 class GetPtReservationsSerializer(serializers.ModelSerializer):
 
-    doctor = serializers.StringRelatedField()
     clinic = serializers.StringRelatedField()
 
     class Meta:
@@ -55,5 +54,6 @@ class ViewClinicSerializer(serializers.ModelSerializer):
 
 class TopRatedSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Thanks
-        fields = ['doctor', 'thanks']
+        model = Doctors
+        fields = ['user','specialize','thanks']
+

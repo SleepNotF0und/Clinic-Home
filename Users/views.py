@@ -39,6 +39,7 @@ import random, os
 def DoctorsCategory(request):
     if request.method == 'GET':
         Param = request.GET.get('spec', '')
+        
         data = { 'Doctors': [] }
         doctors_db = Doctors.objects.all()
         DoctorsCategory_srz = DoctorsCategorySerializer(doctors_db, many=True)
@@ -356,16 +357,16 @@ def ForgetPassword(request):
 @authentication_classes(())
 #========================
 #ResetPassword()~VIEW~DOESN'T~HAVE~A~SERIALIZER
-def ResetPassword(request, id):  
+def ResetPassword(request):  
     if request.method == 'POST':
 
         try:
-            CurrentUser = get_user_model().objects.get(id=id)
-            UserOTP = CurrentUser.otp
-            
             OTP = request.data['otp']
             NewPassword = request.data['password']
             ReNewPassword = request.data['re-password']
+
+            CurrentUser = get_user_model().objects.get(otp=OTP)
+            UserOTP = CurrentUser.otp
 
             if OTP != UserOTP:
                 content = {"status":False, "details":"OTP Not valid"}     
@@ -383,7 +384,7 @@ def ResetPassword(request, id):
                 return Response(content, status=status.HTTP_201_CREATED)
         
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"User ID Not Found"}     
+            content = {"status":False, "details":"User Not Found"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
  

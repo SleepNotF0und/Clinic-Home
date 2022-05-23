@@ -40,14 +40,16 @@ class DoctorCreateSerializer(serializers.ModelSerializer):
     gender = serializers.CharField(max_length=6,required=True)
     dateofbirth = serializers.CharField(max_length=10, required=True)
     accept_insurance = serializers.BooleanField(default=False, required=False, allow_null=True)
-    insurance_companies = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    insurance_company1 = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    insurance_company2 = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    insurance_company3 = serializers.CharField(max_length=100, required=False, allow_blank=True)
     specialize = serializers.CharField(max_length=30, required=True)
     price = serializers.CharField(max_length=10, required=True)
     #image in profile update
 
     class Meta:
         model = CustomUser
-        fields = ['username','password','mobile','info','gender','dateofbirth','accept_insurance','insurance_companies','specialize','price']
+        fields = ['username','password','mobile','info','gender','dateofbirth','accept_insurance','insurance_company1','insurance_company2','insurance_company3','specialize','price']
 
     def save(self):
         CurrentUser = self.context['request'].user
@@ -64,7 +66,9 @@ class DoctorCreateSerializer(serializers.ModelSerializer):
             gender=self.validated_data['gender'],  
             dateofbirth=self.validated_data['dateofbirth'],
             accept_insurance=self.validated_data['accept_insurance'],
-            insurance_companies=self.validated_data['insurance_companies'],
+            insurance_company1=self.validated_data['insurance_company1'],
+            insurance_company2=self.validated_data['insurance_company2'],
+            insurance_company3=self.validated_data['insurance_company3'],
             specialize=self.validated_data['specialize'], 
             price=self.validated_data['price']
         )

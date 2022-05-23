@@ -65,13 +65,6 @@ def ViewDoctorProfile(request, id):
             else:
                 UserImage = "User has No Profile Pic"
 
-            #GET~DOCTOR~THANKS
-            try:
-                GetThanks = Thanks.objects.get(doctor=GetDoctor.id)
-                GetDoctorThanks = GetThanks.thanks
-            except Thanks.DoesNotExist:
-                GetDoctorThanks = 0
-
             #GET~DOCTORS~COMMENTS
             DoctorComments = Comments.objects.filter(doctor=GetDoctor.id)
             DoctorComments_srz = DoctorCommentsSerializer(DoctorComments, many=True)
@@ -97,10 +90,12 @@ def ViewDoctorProfile(request, id):
                 "ImageURL":UserImage,
                 "info":GetDoctor.info, 
                 "accept_insurance":GetDoctor.accept_insurance,
-                "insurance_companies":GetDoctor.insurance_companies,
+                "insurance_company1":GetDoctor.insurance_company1,
+                "insurance_company2":GetDoctor.insurance_company2,
+                "insurance_company3":GetDoctor.insurance_company3,
                 "specialize":GetDoctor.specialize,
                 "price":GetDoctor.price,
-                "thanks":GetDoctorThanks,
+                "thanks":GetDoctor.thanks,
                 "patients comments":data
             }
             return Response(content, status=status.HTTP_200_OK)
@@ -302,10 +297,20 @@ def ViewReservations(request):
         GetPtReservations = Reservations.objects.filter(user=CurrentUser)
         GetPtReservations_srz = GetPtReservationsSerializer(GetPtReservations, many=True)
 
+        data = { 'Reservations': [] }
+        for ele in GetPtReservations_srz.data:
+            GetDoctor = Doctors.objects.get(id=ele['doctor'])
+            GetDoctorUser = CustomUser.objects.get(doctors=GetDoctor.id)          
+            
+            if GetDoctor:
+                ele['user'] = GetDoctorUser.id
+                ele['doctor'] = GetDoctorUser.username
+                data['Reservations'].append(ele)
+
         content = {
             "status":True, 
             "username":CurrentUser.username, 
-            "Reservations":GetPtReservations_srz.data,
+            "Reservations":data,
             }
         return Response(content, status=status.HTTP_200_OK)
 
@@ -429,7 +434,9 @@ def MakeThanks(request):
                     GetDoctorId = Doctors.objects.get(user=GetDoctorUser.id)
 
                     if not Thanks.objects.filter(user=CurrentUser, doctor=GetDoctorId):
-                        Thanks.objects.create(user=CurrentUser, doctor=GetDoctorId, thanks=+1)
+                        Thanks.objects.create(user=CurrentUser, doctor=GetDoctorId)
+                        GetDoctorId.thanks +=1
+                        GetDoctorId.save()
 
                         #FIRE~A~NOTIFICATION~TO~THE~DOCTOR
                         Notifications.objects.create(
@@ -478,7 +485,9 @@ def MakePreview(request):
                     GetDoctorId = Doctors.objects.get(user=GetDoctorUser.id)
 
                     if not Previews.objects.filter(user=CurrentUser, doctor=GetDoctorId):
-                        Previews.objects.create(user=CurrentUser, doctor=GetDoctorId, preview=+1)
+                        Previews.objects.create(user=CurrentUser, doctor=GetDoctorId)
+                        GetDoctorId.previews +=1
+                        GetDoctorId.save()
 
                         #FIRE~A~NOTIFICATION~TO~THE~DOCTOR
                         Notifications.objects.create(
@@ -596,17 +605,21 @@ def TopRated(request):
             #max_thanks = Thanks.objects.aggregate(Max('thanks'))
             #get_max = Thanks.objects.get(thanks=max_thanks)
 
-            thanks_db = Thanks.objects.all()
-            thanks_srz = TopRatedSerializer(thanks_db, many=True)
+            Doctors_db = Doctors.objects.all()
+            TopRated_srz = TopRatedSerializer(Doctors_db, many=True)
 
-            data = { 'top thanks': [] }
-            for ele in thanks_srz.data:
-                
-                if ele['thanks'] >= 20:
-                    data['top thanks'].append(ele)
+            data = { 'topThanks': [] }
+            
+            for ele in TopRated_srz.data:             
+                if ele['thanks'] >= 30:
+                    GetDoctorUser = get_user_model().objects.get(id=ele['user'])
+
+                    ele['username'] = GetDoctorUser.username
+                    ele['profile_pic'] = GetDoctorUser.profile_pic.url
+                    data['topThanks'].append(ele)
                 else:
                     pass
-
+            
             content = {"status":True, "data":data}     
             return Response(content, status=status.HTTP_200_OK)
         
