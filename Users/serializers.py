@@ -19,7 +19,7 @@ from django.utils.translation import gettext as _
 class DoctorsCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctors
-        fields = ['user','specialize','accept_insurance','insurance_companies']
+        fields = ['user','specialize','accept_insurance','insurance_company1','insurance_company2','insurance_company3']
 
 
 class AllTopicsSerializer(serializers.ModelSerializer):
