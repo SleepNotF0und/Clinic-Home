@@ -283,17 +283,23 @@ class ClinicImageUpload(APIView):
             if GetUser.is_doctor == True:
 
                 ClinicId = request.data['clinic']
-                GetClinic = Clinics.objects.get(user=GetUser, id=ClinicId)
 
-                file = request.data.get('clinic_image')
+                try:
+                    GetClinic = Clinics.objects.get(user=GetUser, id=ClinicId)
 
-                upload_data = cloudinary.uploader.upload(file)
-                
-                GetClinic.clinic_image = upload_data['url'][50:]
-                GetClinic.save()
+                    file = request.data.get('clinic_image')
 
-                content = {"status":True, "username":GetUser.username, "detials":"Clinic Image Updated", "data": upload_data}
-                return Response(content, status=status.HTTP_200_OK)
+                    upload_data = cloudinary.uploader.upload(file)
+                    
+                    GetClinic.clinic_image = upload_data['url'][50:]
+                    GetClinic.save()
+
+                    content = {"status":True, "username":GetUser.username, "details":"Clinic Image Updated", "data": upload_data}
+                    return Response(content, status=status.HTTP_200_OK)
+
+                except Clinics.DoesNotExist:
+                    content = {"status":False, "username":GetUser.username, "details":"Clinic Doesn't Exist Or you don't belong this clinic"}
+                    return Response(content, status=status.HTTP_404_NOT_FOUND)
                
             else:
                 content = {"status":False, "details":"You are not doctor !"}     

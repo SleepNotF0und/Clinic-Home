@@ -32,7 +32,7 @@ class Comments(models.Model):
     user = models.ForeignKey(CustomUser, related_name='comments', on_delete=models.CASCADE)
     doctor = models.ForeignKey(Doctors, related_name='comments', on_delete=models.CASCADE)
 
-    comment = models.CharField(max_length=70, blank=True, null=True)
+    comment = models.CharField(max_length=400, blank=True, null=True)
 
     class Meta:
         verbose_name = _("Comment")
@@ -47,8 +47,6 @@ class Thanks(models.Model):
     user = models.ForeignKey(CustomUser, related_name='Thanks', on_delete=models.CASCADE)
     doctor = models.ForeignKey(Doctors, related_name='Thanks', on_delete=models.CASCADE)
 
-    thanks = models.IntegerField(null=True, blank=True, default=0)
-
     class Meta:
         verbose_name = _("Thank")
         verbose_name_plural = _("Thanks") 
@@ -58,8 +56,6 @@ class Thanks(models.Model):
 class Previews(models.Model):
     user = models.ForeignKey(CustomUser, related_name='Previews', on_delete=models.CASCADE)
     doctor = models.ForeignKey(Doctors, related_name='Previews', on_delete=models.CASCADE)
-
-    preview = models.IntegerField(null=True, blank=True, default=0)
 
     class Meta:
         verbose_name = _("Preview")

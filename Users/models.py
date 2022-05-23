@@ -65,16 +65,20 @@ class CustomUser(AbstractUser):
 
 class Doctors(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    info = models.TextField(max_length=100)
-    gender = models.CharField(max_length=10, null=True)
+    info = models.TextField(max_length=100, null=True, blank=True)
+    gender = models.CharField(max_length=10, null=True, blank=True)
 
     accept_insurance = models.BooleanField(default=False, null=True, blank=True)
-    insurance_companies = models.TextField(max_length=100, null=True, blank=True)
+    insurance_company1 = models.TextField(max_length=100, null=True, blank=True)
+    insurance_company2 = models.TextField(max_length=100, null=True, blank=True)
+    insurance_company3 = models.TextField(max_length=100, null=True, blank=True)
     
-    dateofbirth = models.CharField(max_length=10, null=True)
+    thanks = models.IntegerField(null=True, blank=True, default=0)
+    previews = models.IntegerField(null=True, blank=True, default=0)
 
-    specialize = models.CharField(max_length=20, null=True)
-    price = models.IntegerField(blank=True, null=True)
+    dateofbirth = models.CharField(max_length=10, null=True, blank=True)
+    specialize = models.CharField(max_length=20, null=True, blank=True)
+    price = models.IntegerField(null=True, blank=True)
 
     class Meta:
         verbose_name = _("Doctor")
@@ -87,18 +91,18 @@ class Doctors(models.Model):
 
 class Patients(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    gender = models.CharField(max_length=10, null=True)
+    gender = models.CharField(max_length=10, null=True, blank=True)
 
-    address = models.CharField(max_length=50, null=True)
-    city = models.CharField(max_length=20, null=True)
-    district = models.CharField(max_length=20, null=True)
+    address = models.CharField(max_length=50, null=True, blank=True)
+    city = models.CharField(max_length=20, null=True, blank=True)
+    district = models.CharField(max_length=20, null=True, blank=True)
 
-    dateofbirth = models.CharField(max_length=10, null=True)
+    dateofbirth = models.CharField(max_length=10, null=True, blank=True)
 
     age = models.IntegerField()
-    blood = models.CharField(max_length=50, null=True)
-    heigh = models.CharField(max_length=10, null=True)
-    weight = models.CharField(max_length=10, null=True)
+    blood = models.CharField(max_length=50, null=True, blank=True)
+    heigh = models.CharField(max_length=10, null=True, blank=True)
+    weight = models.CharField(max_length=10, null=True, blank=True)
 
     class Meta:
         verbose_name = _("Patient")

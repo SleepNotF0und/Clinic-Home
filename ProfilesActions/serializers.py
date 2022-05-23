@@ -35,8 +35,7 @@ class PtSpecialInfoUpdateSerializer(serializers.ModelSerializer):
 class DrSpecialInfoUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctors
-        fields = ['dateofbirth','specialize','price','info']
-
+        fields = ['dateofbirth','specialize','price','info','accept_insurance','insurance_company1','insurance_company2','insurance_company3']
 
 class GetDrNotificationsSerializer(serializers.ModelSerializer):
     class Meta:

@@ -86,7 +86,9 @@ def DrUserProfile(request):
                 "gender":GetDoctor.gender,
                 "date of birth":GetDoctor.dateofbirth,
                 "accept_insurance":GetDoctor.accept_insurance,
-                "insurance_companies":GetDoctor.insurance_companies,
+                "insurance_company1":GetDoctor.insurance_company1,
+                "insurance_company2":GetDoctor.insurance_company2,
+                "insurance_company3":GetDoctor.insurance_company3,
                 "specialize":GetDoctor.specialize, 
                 "price":GetDoctor.price
                 }
@@ -287,11 +289,6 @@ def PtSpecialInfoUpdate(request):
             GetUser = get_user_model().objects.get(id=CurrentUser.id)
             GetPatient = Patients.objects.get(user=GetUser.id)
 
-            Dateofbirth = request.data['dateofbirth']
-            Blood       = request.data['blood']
-            Heigh       = request.data['heigh']
-            Weight      = request.data['weight']
-
             PtSpecialInfoUpdate_srz = PtSpecialInfoUpdateSerializer(GetPatient, data=request.data)
             if PtSpecialInfoUpdate_srz.is_valid(raise_exception=True):
                 PtSpecialInfoUpdate_srz.save()
@@ -316,11 +313,6 @@ def DrSpecialInfoUpdate(request):
         try:
             GetUser = get_user_model().objects.get(id=CurrentUser.id)
             GetDoctor = Doctors.objects.get(user=GetUser.id)
-
-            Dateofbirth = request.data['dateofbirth']
-            Info        = request.data['info']
-            Specialize  = request.data['specialize']
-            Price       = request.data['price']
 
             DrSpecialInfoUpdate_srz = DrSpecialInfoUpdateSerializer(GetDoctor, data=request.data)
             if DrSpecialInfoUpdate_srz.is_valid(raise_exception=True):
