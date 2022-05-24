@@ -23,11 +23,46 @@ from .serializers import *
 
 
 
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+#========================
+def SearchDoctor(request):
+    if request.method == 'GET':
+        Param = request.GET.get('name', '')
+        
+        data = { 'Doctors': [] }
+        doctors_db = Doctors.objects.all()
+        SearchDoctor_srz = SearchDoctorSerializer(doctors_db, many=True)
+
+        for ele in SearchDoctor_srz.data:
+            GetUser = CustomUser.objects.get(pk=ele['user'])          
+            GetImage = GetUser.profile_pic
+
+            if GetImage and hasattr(GetImage, 'url'):
+                CurrentImage = GetImage.url
+            else:
+                CurrentImage = "User has No Profile Pic"
+               
+            if GetUser:
+                ele['image'] = CurrentImage
+                ele['username'] = GetUser.username
+
+                if ele['username'] == Param:
+                    data['Doctors'].append(ele)
+
+                    content = {"status":True, "details":"success", "data":data}
+                    return Response(content, status=status.HTTP_200_OK)
+                else:
+                    content = {"status":False, "details":"Doctor Not Found"}
+                    return Response(content, status=status.HTTP_200_OK)  
+        
+
 
 class SearchByName(ListAPIView):
     queryset  = CustomUser.objects.all()
     serializer_class = SearchByNameSerializer
-    
+
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
