@@ -17,6 +17,7 @@ import cloudinary.uploader
 
 from Users.models import Doctors, Patients
 from PatientActions.models import Reservations
+from DoctorActions.models import Clinics
 from .models import Notifications
 
 from .serializers import *
@@ -78,6 +79,9 @@ def DrUserProfile(request):
             else:
                 CurrentImage = "User has No Profile Pic"
 
+            DoctorClinics = Clinics.objects.filter(user=GetUser.id)
+            DoctorClinics_srz = DoctorClinicsSerializer(DoctorClinics, many=True)
+
             content = {
                 "status":True, 
                 "username":CurrentUser.username, 
@@ -90,7 +94,8 @@ def DrUserProfile(request):
                 "insurance_company2":GetDoctor.insurance_company2,
                 "insurance_company3":GetDoctor.insurance_company3,
                 "specialize":GetDoctor.specialize, 
-                "price":GetDoctor.price
+                "price":GetDoctor.price,
+                "clinics":DoctorClinics_srz.data
                 }
             return Response(content, status=status.HTTP_200_OK)
         
