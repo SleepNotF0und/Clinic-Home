@@ -8,9 +8,10 @@ app_name = 'PatientActions'
 urlpatterns = [
 
     #SEARCH~ANY~USER~BY~NAME~ENDPOINT------/action/pt/search/name/?search=admin
-    #SEARCH~DOCTOR~ONLY~BY~CITY~ENDPOINT------/action/pt/search/city/?search=r
+    #SEARCH~DOCTOR~ONLY~BY~CITY~ENDPOINT------/action/pt/search/doctor/?name=r
     #SEARCH~CLINIC~BY~CITY~ENDPOINT------/action/pt/search/clinic/city/?search=tes
     path('search/name/', views.SearchByName.as_view()),
+    path('search/doctor/', views.SearchDoctor, name="SearchDoctor"),
     path('search/clinic/city/', views.SearchClinicByCity.as_view()),
 
     

@@ -9,7 +9,7 @@ from . import views
 app_name = 'Users'
 
 urlpatterns = [
-    #SHOW~DOCTORS~BY~CATEGORY~ENDPOINT
+    #SHOW~DOCTORS~BY~CATEGORY~ENDPOINT-------/api/category/?spec=neurologists
     #SHOW~ALL~TOPICS~ENDPOINT
     #VIEW~TOPIC~ENDPOINT
     path('category/', views.DoctorsCategory, name="category"),

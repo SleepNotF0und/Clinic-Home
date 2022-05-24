@@ -7,6 +7,14 @@ from .models import *
 
 
 
+
+
+class SearchDoctorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctors
+        fields = ['user','specialize']
+
+
 class SearchByNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser

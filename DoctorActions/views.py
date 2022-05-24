@@ -162,6 +162,7 @@ def ViewAppointments(request):
                     CurrentImage = "User has No Profile Pic"
                 
                 if GetUser:
+                    ele['patient id'] = GetPatientUser.id
                     ele['user'] = GetPatientUser.username
                     ele['profile_link'] = 'https://clinichome.herokuapp.com/api/action/dr/patients/'+str(GetPatientUser.id)+'/'
                     data['appointments'].append(ele)
@@ -202,20 +203,23 @@ def CreateClinic(request):
                 Address = request.data['address']
                 
                 #CREATE~CLINIC
-                Clinics.objects.create(
-                    user=CurrentUser, 
-                    clinicname=ClinicName, 
-                    workhours=WorkHours, 
-                    city=City, 
-                    district=District, 
-                    address=Address
-                    )
-            
+                NewClinic = Clinics.objects.create(
+                                user=CurrentUser, 
+                                clinicname=ClinicName, 
+                                workhours=WorkHours, 
+                                city=City, 
+                                district=District, 
+                                address=Address
+                                )
+                NewClinic.save()
+
+
                 content = {
                     "status":True, 
                     "details":"Clinic Created", 
                     "Doctor":CurrentUser.username, 
-                    "clinic name":ClinicName
+                    "clinic name":ClinicName,
+                    "clinic id":NewClinic.id
                     }
                 return Response(content, status=status.HTTP_201_CREATED)                 
 
