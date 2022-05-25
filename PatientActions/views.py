@@ -43,20 +43,16 @@ def SearchDoctor(request):
                 CurrentImage = GetImage.url
             else:
                 CurrentImage = "User has No Profile Pic"
-               
+            
             if GetUser:
-                ele['image'] = CurrentImage
                 ele['username'] = GetUser.username
-
+                ele['image'] = CurrentImage
                 if ele['username'] == Param:
                     data['Doctors'].append(ele)
 
-                    content = {"status":True, "details":"success", "data":data}
-                    return Response(content, status=status.HTTP_200_OK)
-                else:
-                    content = {"status":False, "details":"Doctor Not Found"}
-                    return Response(content, status=status.HTTP_200_OK)  
-        
+        content = {"status":True, "details":"success", "data":data}
+        return Response(content, status=status.HTTP_200_OK)
+    
 
 
 class SearchByName(ListAPIView):
@@ -338,6 +334,7 @@ def ViewReservations(request):
             GetDoctorUser = CustomUser.objects.get(doctors=GetDoctor.id)          
             
             if GetDoctor:
+                ele['price'] = GetDoctor.price
                 ele['user'] = GetDoctorUser.id
                 ele['doctor'] = GetDoctorUser.username
                 data['Reservations'].append(ele)
