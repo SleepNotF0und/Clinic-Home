@@ -163,6 +163,7 @@ def ViewAppointments(request):
                 
                 if GetUser:
                     ele['patient id'] = GetPatientUser.id
+                    ele['patient mobile'] = GetPatientUser.mobile
                     ele['user'] = GetPatientUser.username
                     ele['profile_link'] = 'https://clinichome.herokuapp.com/api/action/dr/patients/'+str(GetPatientUser.id)+'/'
                     data['appointments'].append(ele)

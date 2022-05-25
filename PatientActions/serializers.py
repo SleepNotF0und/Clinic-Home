@@ -12,7 +12,7 @@ from .models import *
 class SearchDoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctors
-        fields = ['user','specialize']
+        fields = ['user','specialize','accept_insurance','insurance_company1','insurance_company2','insurance_company3']
 
 
 class SearchByNameSerializer(serializers.ModelSerializer):
