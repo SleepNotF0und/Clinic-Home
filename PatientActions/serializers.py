@@ -63,5 +63,5 @@ class ViewClinicSerializer(serializers.ModelSerializer):
 class TopRatedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctors
-        fields = ['user','specialize','thanks']
+        fields = ['user','specialize','thanks','previews']
 

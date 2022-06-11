@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework import status
+from rest_framework import generics
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
@@ -18,7 +19,7 @@ import cloudinary.uploader
 from Users.models import Doctors, Patients
 from PatientActions.models import Reservations
 from DoctorActions.models import Clinics
-from .models import Notifications
+from .models import *
 
 from .serializers import *
 
@@ -325,6 +326,95 @@ def DrSpecialInfoUpdate(request):
 
                 content = {"status":True, "username":GetUser.username, "detials":"Info Updated"}
                 return Response(content, status=status.HTTP_201_CREATED)
+        
+        except get_user_model().DoesNotExist:
+            content = {"status":False, "details":"Your account doesn't exist"}     
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+
+#VIEW~CHATS~WITH~GET~PARAMS
+class ChatList(generics.ListCreateAPIView):
+    
+    queryset = Chat.objects.all()
+    serializer_class = ChatSerializer
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = Chat.objects.all()
+        from_id = self.request.query_params.get('from_id')
+        to_id = self.request.query_params.get('to_id')
+
+        if from_id is not None and to_id is not None:
+            queryset1 = Chat.objects.filter(from_user=from_id,to_user=to_id)
+            queryset2 = Chat.objects.filter(from_user=to_id,to_user=from_id)
+            queryset =  queryset1.union(queryset2)
+        
+        return queryset
+
+
+
+@api_view(['POST'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+#========================
+def SendMessage(request):
+    if request.method == 'POST':
+        CurrentUser = request.user
+
+        try:
+            GetUser = get_user_model().objects.get(id=CurrentUser.id)
+
+            message = request.data['message']
+            send_to = request.data['send_to']
+
+            receiver = get_user_model().objects.get(id=send_to)
+            Chat.objects.create(from_user=GetUser, to_user=receiver, message=message)
+
+                    
+            content = {"status":True, "username":GetUser.username, "details":"Message Sent", "message":message}
+            return Response(content, status=status.HTTP_201_CREATED)
+
+        
+        except get_user_model().DoesNotExist:
+            content = {"status":False, "details":"Your account doesn't exist"}     
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+#========================
+def MyChat(request):
+    if request.method == 'GET':
+        CurrentUser = request.user
+
+        try:
+            GetUser = get_user_model().objects.get(id=CurrentUser.id)
+
+            mychat = Chat.objects.filter(from_user=GetUser)
+            chat_srz = ChatSerializer(mychat, many=True)
+            data = { 'chats': [] }
+
+            for ele in chat_srz.data:
+                Get_receiver = CustomUser.objects.get(pk=ele['to_user'])
+                GetImage = Get_receiver.profile_pic
+
+                if GetImage and hasattr(GetImage, 'url'):
+                    CurrentImage = GetImage.url
+                else:
+                    CurrentImage = "User has No Profile Pic"          
+                
+                if Get_receiver:
+                    ele['to_username'] = Get_receiver.username
+                    ele['to_user_image'] = CurrentImage
+                    data['chats'].append(ele)
+
+            content = {"status":True, "username":GetUser.username, "mychats":data}
+            return Response(content, status=status.HTTP_201_CREATED)
         
         except get_user_model().DoesNotExist:
             content = {"status":False, "details":"Your account doesn't exist"}     

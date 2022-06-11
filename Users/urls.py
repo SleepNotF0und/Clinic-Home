@@ -40,7 +40,6 @@ urlpatterns = [
     #FACEBOOK~SOCIAL~LOGIN~ENDPOINT
     path('login/', views.Login, name="login"),
     path('login/ForgetPassword/', views.ForgetPassword, name="ForgetPassword"),
-    path('login/ResetPassword/', views.ResetPassword, name="PasswordReset"),
-    path('login/FacebookAuth/', views.SocialLogin, name="FacebookLogin"),
+    path('login/ResetPassword/', views.ResetPassword, name="PasswordReset")
 ]
 
