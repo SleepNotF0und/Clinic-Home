@@ -21,3 +21,19 @@ class Notifications(models.Model):
 
     def __str__(self):
         return self.message
+
+
+
+class Chat(models.Model):
+
+    from_user = models.ForeignKey(CustomUser, related_name='from_sender', on_delete=models.CASCADE, null=True, blank=True)
+    message = models.CharField(max_length=1000, blank=True, null=True)
+    to_user = models.ForeignKey(CustomUser, related_name='to_reciever', on_delete=models.CASCADE, null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("Message")
+        verbose_name_plural = _("Chat")
+
+    def __str__(self):
+        return self.message
+    

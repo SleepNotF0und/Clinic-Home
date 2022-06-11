@@ -388,15 +388,3 @@ def ResetPassword(request):
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
  
-
-@api_view(['POST'])
-@authentication_classes(())
-#========================
-def SocialLogin(request): 
-    if request.method == 'POST':
-        FacebookSocialAuth_srz = FacebookSocialAuthSerializer(data=request.data)
-        FacebookSocialAuth_srz.is_valid(raise_exception=True)
-        data = ((serializer.validated_data)['auth_token'])
-        return Response(data, status=status.HTTP_200_OK)
-
-

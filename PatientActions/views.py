@@ -23,6 +23,8 @@ from .serializers import *
 
 
 
+
+
 @api_view(['GET'])
 @authentication_classes((TokenAuthentication,))
 @permission_classes((IsAuthenticated,))
@@ -127,6 +129,7 @@ def ViewDoctorProfile(request, id):
                 "specialize":GetDoctor.specialize,
                 "price":GetDoctor.price,
                 "thanks":GetDoctor.thanks,
+                "previews":GetDoctor.previews,
                 "patients comments":data
             }
             return Response(content, status=status.HTTP_200_OK)
@@ -532,7 +535,7 @@ def MakePreview(request):
                         return Response(content, status=status.HTTP_201_CREATED)
 
                     else:
-                        content = {"status":False, "details":"You already Previewed that doctor"}
+                        content = {"status":True, "details":"Preview Added"}
                         return Response(content, status=status.HTTP_201_CREATED)       
 
                 except get_user_model().DoesNotExist:                   

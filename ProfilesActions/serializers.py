@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from Users.models import Doctors, Patients, CustomUser
 from DoctorActions.models import Clinics
-from .models import Notifications
+from .models import *
 
 
 
@@ -55,3 +55,9 @@ class DoctorClinicsSerializer(serializers.ModelSerializer):
         model = Clinics
         fields = '__all__'
 
+
+
+class ChatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chat
+        fields = '__all__'
