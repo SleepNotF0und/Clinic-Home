@@ -333,28 +333,9 @@ def DrSpecialInfoUpdate(request):
 
 
 
-#VIEW~CHATS~WITH~GET~PARAMS
-class ChatList(generics.ListCreateAPIView):
-    
-    queryset = Chat.objects.all()
-    serializer_class = ChatSerializer
-
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
-        queryset = Chat.objects.all()
-        from_id = self.request.query_params.get('from_id')
-        to_id = self.request.query_params.get('to_id')
-
-        if from_id is not None and to_id is not None:
-            queryset1 = Chat.objects.filter(from_user=from_id,to_user=to_id)
-            queryset2 = Chat.objects.filter(from_user=to_id,to_user=from_id)
-            queryset =  queryset1.union(queryset2)
-        
-        return queryset
-
-
+#===================
+#~CHAT~APP~METHODS
+#===================
 
 @api_view(['POST'])
 @authentication_classes((TokenAuthentication,))
@@ -395,22 +376,33 @@ def MyChat(request):
         try:
             GetUser = get_user_model().objects.get(id=CurrentUser.id)
 
-            mychat = Chat.objects.filter(from_user=GetUser)
-            chat_srz = ChatSerializer(mychat, many=True)
+            chat_db = Chat.objects.all()
+            chat_srz = ChatSerializer(chat_db, many=True)
             data = { 'chats': [] }
 
             for ele in chat_srz.data:
                 Get_receiver = CustomUser.objects.get(pk=ele['to_user'])
-                GetImage = Get_receiver.profile_pic
+                Get_sender = CustomUser.objects.get(pk=ele['from_user'])
 
-                if GetImage and hasattr(GetImage, 'url'):
-                    CurrentImage = GetImage.url
+                GetReceiver_Image = Get_receiver.profile_pic
+                GetSender_Image = Get_sender.profile_pic
+
+                if GetReceiver_Image and hasattr(GetReceiver_Image, 'url'):
+                    ReceiverImage = GetReceiver_Image.url
                 else:
-                    CurrentImage = "User has No Profile Pic"          
+                    ReceiverImage = "User has No Profile Pic"  
+
+                if GetSender_Image and hasattr(GetSender_Image, 'url'):
+                    SenderImage = GetSender_Image.url
+                else:
+                    SenderImage = "User has No Profile Pic"          
                 
-                if Get_receiver:
+                if GetUser.id == ele['to_user'] or GetUser.id == ele['from_user']:
+                    ele['from_username'] = Get_sender.username
+                    ele['from_user_image'] = SenderImage
+
                     ele['to_username'] = Get_receiver.username
-                    ele['to_user_image'] = CurrentImage
+                    ele['to_user_image'] = ReceiverImage
                     data['chats'].append(ele)
 
             content = {"status":True, "username":GetUser.username, "mychats":data}
@@ -419,3 +411,52 @@ def MyChat(request):
         except get_user_model().DoesNotExist:
             content = {"status":False, "details":"Your account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+#========================
+def GetChat(request):
+    if request.method == 'GET':
+        CurrentUser = request.user
+        GetUser = get_user_model().objects.get(id=CurrentUser.id)
+
+        to_id = request.GET.get('with', '')
+        
+        queryset1 = Chat.objects.filter(from_user=GetUser,to_user=to_id)
+        queryset2 = Chat.objects.filter(from_user=to_id,to_user=GetUser)
+        queryset =  queryset1.union(queryset2)
+
+        chat_srz = ChatSerializer(queryset, many=True)
+        data = { 'chats': [] }
+
+        
+        for ele in chat_srz.data:
+            Get_receiver = CustomUser.objects.get(pk=ele['to_user'])
+            Get_sender = CustomUser.objects.get(pk=ele['from_user'])
+
+            GetReceiver_Image = Get_receiver.profile_pic
+            GetSender_Image = Get_sender.profile_pic
+
+            if GetReceiver_Image and hasattr(GetReceiver_Image, 'url'):
+                ReceiverImage = GetReceiver_Image.url
+            else:
+                ReceiverImage = "User has No Profile Pic"  
+
+            if GetSender_Image and hasattr(GetSender_Image, 'url'):
+                SenderImage = GetSender_Image.url
+            else:
+                SenderImage = "User has No Profile Pic"          
+            
+            if queryset:
+                ele['from_username'] = Get_sender.username
+                ele['from_user_image'] = SenderImage
+
+                ele['to_username'] = Get_receiver.username
+                ele['to_user_image'] = ReceiverImage
+                data['chats'].append(ele)
+        
+        content = {"status":True, "details":"success", "mychat":data}
+        return Response(content, status=status.HTTP_200_OK)
