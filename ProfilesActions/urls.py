@@ -32,10 +32,9 @@ urlpatterns = [
 
 
     #CHATS~ENDPOINTS
-    re_path(r'^chat/$', views.ChatList.as_view(), name='chat-get-list'),
-    re_path(r'^chat/(?P<from_id>.+)&(?P<to_id>.+)/$', views.ChatList.as_view(), name='chat-list'),
-    
+    #re_path(r'^chat/$', views.ChatList.as_view(), name='chat-get-list'),    
     path('message/send/', views.SendMessage, name="SendMessage"),
     path('mychat/', views.MyChat, name="MyChat"),
+    path('chat/', views.GetChat, name='GetChat'),
 ]
 
