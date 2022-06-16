@@ -333,35 +333,72 @@ def DrSpecialInfoUpdate(request):
 
 
 
-#===================
-#~CHAT~APP~METHODS
-#===================
+#===================================
+#~~~~~~~~~CHAT~APP~METHODS~~~~~~~~~~
+#===================================
 
 @api_view(['POST'])
 @authentication_classes((TokenAuthentication,))
 @permission_classes((IsAuthenticated,))
 #========================
-def SendMessage(request):
+def PtSendMessage(request):
     if request.method == 'POST':
         CurrentUser = request.user
 
         try:
             GetUser = get_user_model().objects.get(id=CurrentUser.id)
 
-            message = request.data['message']
             send_to = request.data['send_to']
+            message = request.data['message']
 
             receiver = get_user_model().objects.get(id=send_to)
-            Chat.objects.create(from_user=GetUser, to_user=receiver, message=message)
 
-                    
-            content = {"status":True, "username":GetUser.username, "details":"Message Sent", "message":message}
+            #CREATE~CHAT
+            if not Chat.objects.filter(patient=GetUser, doctor=receiver):
+                Chat.objects.create(patient=GetUser, doctor=receiver)
+                      
+            GetChat = Chat.objects.get(patient=GetUser, doctor=receiver)            
+            Messages.objects.create(chat_id=GetChat, message=message, sender=GetUser)
+            
+            content = {"status":True, "sender":GetUser.username, "details":"Message Sent", "message":message}
             return Response(content, status=status.HTTP_201_CREATED)
-
         
         except get_user_model().DoesNotExist:
-            content = {"status":False, "details":"Your account doesn't exist"}     
+            content = {"status":False, "details":"doctor account doesn't exist"}     
             return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(['POST'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+#========================
+def DrSendMessage(request):
+    if request.method == 'POST':
+        CurrentUser = request.user
+
+        try:
+            GetUser = get_user_model().objects.get(id=CurrentUser.id)
+
+            send_to = request.data['send_to']
+            message = request.data['message']
+
+            receiver = get_user_model().objects.get(id=send_to)
+
+            #CREATE~CHAT
+            if not Chat.objects.filter(doctor=GetUser, patient=receiver):
+                Chat.objects.create(doctor=GetUser, patient=receiver)
+                      
+            GetChat = Chat.objects.get(doctor=GetUser, patient=receiver)            
+            Messages.objects.create(chat_id=GetChat, message=message, sender=GetUser)
+            
+            content = {"status":True, "sender":GetUser.username, "details":"Message Sent", "message":message}
+            return Response(content, status=status.HTTP_201_CREATED)
+        
+        except get_user_model().DoesNotExist:
+            content = {"status":False, "details":"patient account doesn't exist"}     
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
 
 
 
@@ -369,43 +406,35 @@ def SendMessage(request):
 @authentication_classes((TokenAuthentication,))
 @permission_classes((IsAuthenticated,))
 #========================
-def MyChat(request):
+def PtChatList(request):
     if request.method == 'GET':
         CurrentUser = request.user
 
         try:
             GetUser = get_user_model().objects.get(id=CurrentUser.id)
 
-            chat_db = Chat.objects.all()
-            chat_srz = ChatSerializer(chat_db, many=True)
+            GetUserChats = Chat.objects.filter(patient=GetUser)
+            chats_srz = ChatSerializer(GetUserChats, many=True)
+
             data = { 'chats': [] }
 
-            for ele in chat_srz.data:
-                Get_receiver = CustomUser.objects.get(pk=ele['to_user'])
-                Get_sender = CustomUser.objects.get(pk=ele['from_user'])
+            for ele in chats_srz.data:
+                Get_doctor = CustomUser.objects.get(pk=ele['doctor'])
 
-                GetReceiver_Image = Get_receiver.profile_pic
-                GetSender_Image = Get_sender.profile_pic
+                Get_doctor_Image = Get_doctor.profile_pic
 
-                if GetReceiver_Image and hasattr(GetReceiver_Image, 'url'):
-                    ReceiverImage = GetReceiver_Image.url
+                if Get_doctor_Image and hasattr(Get_doctor_Image, 'url'):
+                    DoctorImage = Get_doctor_Image.url
                 else:
-                    ReceiverImage = "User has No Profile Pic"  
-
-                if GetSender_Image and hasattr(GetSender_Image, 'url'):
-                    SenderImage = GetSender_Image.url
-                else:
-                    SenderImage = "User has No Profile Pic"          
+                    DoctorImage = "User has No Profile Pic"         
                 
-                if GetUser.id == ele['to_user'] or GetUser.id == ele['from_user']:
-                    ele['from_username'] = Get_sender.username
-                    ele['from_user_image'] = SenderImage
-
-                    ele['to_username'] = Get_receiver.username
-                    ele['to_user_image'] = ReceiverImage
+                if Get_doctor:
+                    ele['doctor_name'] = Get_doctor.username
+                    ele['doctor_image'] = DoctorImage
                     data['chats'].append(ele)
 
-            content = {"status":True, "username":GetUser.username, "mychats":data}
+
+            content = {"status":True, "username":GetUser.username, "mychats":chats_srz.data}
             return Response(content, status=status.HTTP_201_CREATED)
         
         except get_user_model().DoesNotExist:
@@ -414,49 +443,122 @@ def MyChat(request):
 
 
 
+
 @api_view(['GET'])
 @authentication_classes((TokenAuthentication,))
 @permission_classes((IsAuthenticated,))
 #========================
-def GetChat(request):
+def DrChatList(request):
+    if request.method == 'GET':
+        CurrentUser = request.user
+
+        try:
+            GetUser = get_user_model().objects.get(id=CurrentUser.id)
+
+            GetUserChats = Chat.objects.filter(doctor=GetUser)
+            chats_srz = ChatSerializer(GetUserChats, many=True)
+
+            data = { 'chats': [] }
+
+            for ele in chats_srz.data:
+                Get_patient = CustomUser.objects.get(pk=ele['patient'])
+
+                Get_patient_Image = Get_patient.profile_pic
+
+                if Get_patient_Image and hasattr(Get_patient_Image, 'url'):
+                    PatientImage = Get_patient_Image.url
+                else:
+                    PatientImage = "User has No Profile Pic"         
+                
+                if Get_patient:
+                    ele['patient_name'] = Get_patient.username
+                    ele['patient_image'] = PatientImage
+                    data['chats'].append(ele)
+
+
+            content = {"status":True, "username":GetUser.username, "mychats":chats_srz.data}
+            return Response(content, status=status.HTTP_201_CREATED)
+        
+        except get_user_model().DoesNotExist:
+            content = {"status":False, "details":"Your account doesn't exist"}     
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+#========================
+def PtChatWith(request):
     if request.method == 'GET':
         CurrentUser = request.user
         GetUser = get_user_model().objects.get(id=CurrentUser.id)
 
-        to_id = request.GET.get('with', '')
+        with_user = request.GET.get('with', '')
         
-        queryset1 = Chat.objects.filter(from_user=GetUser,to_user=to_id)
-        queryset2 = Chat.objects.filter(from_user=to_id,to_user=GetUser)
-        queryset =  queryset1.union(queryset2)
 
-        chat_srz = ChatSerializer(queryset, many=True)
-        data = { 'chats': [] }
+        GetUserChat = Chat.objects.get(patient=GetUser, doctor=with_user)
+        GetChatMessages = Messages.objects.filter(chat_id=GetUserChat)
 
+        messages_srz = MessagesSerializer(GetChatMessages, many=True)
         
-        for ele in chat_srz.data:
-            Get_receiver = CustomUser.objects.get(pk=ele['to_user'])
-            Get_sender = CustomUser.objects.get(pk=ele['from_user'])
+        data = { 'chat': [] }
 
-            GetReceiver_Image = Get_receiver.profile_pic
+        for ele in messages_srz.data:
+            Get_sender = CustomUser.objects.get(pk=ele['sender'])
+
             GetSender_Image = Get_sender.profile_pic
-
-            if GetReceiver_Image and hasattr(GetReceiver_Image, 'url'):
-                ReceiverImage = GetReceiver_Image.url
-            else:
-                ReceiverImage = "User has No Profile Pic"  
 
             if GetSender_Image and hasattr(GetSender_Image, 'url'):
                 SenderImage = GetSender_Image.url
             else:
                 SenderImage = "User has No Profile Pic"          
             
-            if queryset:
-                ele['from_username'] = Get_sender.username
-                ele['from_user_image'] = SenderImage
+            if Get_sender:
+                ele['sender_username'] = Get_sender.username
+                ele['sender_image'] = SenderImage
+                data['chat'].append(ele)
+             
+        content = {"status":True, "details":"success", "mychat":data}
+        return Response(content, status=status.HTTP_200_OK)
 
-                ele['to_username'] = Get_receiver.username
-                ele['to_user_image'] = ReceiverImage
-                data['chats'].append(ele)
+
+
+
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+#========================
+def DrChatWith(request):
+    if request.method == 'GET':
+        CurrentUser = request.user
+        GetUser = get_user_model().objects.get(id=CurrentUser.id)
+
+        with_user = request.GET.get('with', '')
         
+
+        GetUserChat = Chat.objects.get(doctor=GetUser, patient=with_user)
+        GetChatMessages = Messages.objects.filter(chat_id=GetUserChat)
+
+        messages_srz = MessagesSerializer(GetChatMessages, many=True)
+        
+        data = { 'chat': [] }
+
+        for ele in messages_srz.data:
+            Get_sender = CustomUser.objects.get(pk=ele['sender'])
+
+            GetSender_Image = Get_sender.profile_pic
+
+            if GetSender_Image and hasattr(GetSender_Image, 'url'):
+                SenderImage = GetSender_Image.url
+            else:
+                SenderImage = "User has No Profile Pic"          
+            
+            if Get_sender:
+                ele['sender_username'] = Get_sender.username
+                ele['sender_image'] = SenderImage
+                data['chat'].append(ele)
+             
         content = {"status":True, "details":"success", "mychat":data}
         return Response(content, status=status.HTTP_200_OK)

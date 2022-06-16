@@ -56,8 +56,14 @@ class DoctorClinicsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
 class ChatSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chat
         fields = '__all__'
+
+
+class MessagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Messages
+        fields = '__all__'
+
