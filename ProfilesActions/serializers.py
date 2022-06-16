@@ -67,3 +67,8 @@ class MessagesSerializer(serializers.ModelSerializer):
         model = Messages
         fields = '__all__'
 
+
+class ChatMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Messages
+        fields = ['message']

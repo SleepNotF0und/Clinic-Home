@@ -428,13 +428,17 @@ def PtChatList(request):
                 else:
                     DoctorImage = "User has No Profile Pic"         
                 
+                GetChatMessage = Messages.objects.filter(chat_id=ele['id'])
+                messages_srz = ChatMessageSerializer(GetChatMessage, many=True)
+
                 if Get_doctor:
+                    ele['last_message'] = messages_srz.data[-1]
                     ele['doctor_name'] = Get_doctor.username
                     ele['doctor_image'] = DoctorImage
                     data['chats'].append(ele)
 
 
-            content = {"status":True, "username":GetUser.username, "mychats":chats_srz.data}
+            content = {"status":True, "username":GetUser.username, "mychats":data}
             return Response(content, status=status.HTTP_201_CREATED)
         
         except get_user_model().DoesNotExist:
@@ -470,7 +474,11 @@ def DrChatList(request):
                 else:
                     PatientImage = "User has No Profile Pic"         
                 
+                GetChatMessage = Messages.objects.filter(chat_id=ele['id'])
+                messages_srz = ChatMessageSerializer(GetChatMessage, many=True)
+
                 if Get_patient:
+                    ele['last_message'] = messages_srz.data[-1]
                     ele['patient_name'] = Get_patient.username
                     ele['patient_image'] = PatientImage
                     data['chats'].append(ele)
