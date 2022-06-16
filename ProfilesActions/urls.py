@@ -31,10 +31,14 @@ urlpatterns = [
     path('doctor/SpecialInfoUpdate/', views.DrSpecialInfoUpdate, name="DrSpecialInfoUpdate"),
 
 
-    #CHATS~ENDPOINTS
-    #re_path(r'^chat/$', views.ChatList.as_view(), name='chat-get-list'),    
-    path('message/send/', views.SendMessage, name="SendMessage"),
-    path('mychat/', views.MyChat, name="MyChat"),
-    path('chat/', views.GetChat, name='GetChat'),
+    #CHATS~ENDPOINTS 
+    path('pt/message/send/', views.PtSendMessage, name="PtSendMessage"),
+    path('dr/message/send/', views.DrSendMessage, name="DrSendMessage"),
+
+    path('pt/mychat/', views.PtChatList, name="PtChatList"),
+    path('dr/mychat/', views.DrChatList, name="DrChatList"),
+
+    path('pt/chat/', views.PtChatWith, name='PtChatWith'),
+    path('dr/chat/', views.DrChatWith, name='DrChatWith'),
 ]
 

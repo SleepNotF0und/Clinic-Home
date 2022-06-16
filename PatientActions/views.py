@@ -340,6 +340,7 @@ def ViewReservations(request):
                 ele['price'] = GetDoctor.price
                 ele['user'] = GetDoctorUser.id
                 ele['doctor'] = GetDoctorUser.username
+                ele['doc_pic'] = GetDoctorUser.profile_pic.url
                 data['Reservations'].append(ele)
 
         content = {

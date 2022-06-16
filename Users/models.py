@@ -43,7 +43,7 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractUser):
-    username =  models.CharField(error_messages={'unique': 'A user with that username already exists.'}, help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.', max_length=40, unique=False, verbose_name='username', null=True)
+    username = models.CharField(error_messages={'unique': 'A user with that username already exists.'}, help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.', max_length=40, unique=False, verbose_name='username', null=True)
     email = models.EmailField(max_length=100, blank=True, verbose_name='email', unique=True)
     mobile = models.CharField(max_length=20, blank=True, null=True, unique=True)
     otp = models.CharField(max_length=6, null=True)
