@@ -229,14 +229,14 @@ def Create_Doctor(request):
                 CurrentUser = request.user
                 OTP = CurrentUser.otp
 
-                account_sid = 'ACed031bba4f307f38d7bc646440dda43b'
-                auth_token = '332363210ae724feb2fc08b400d65deb'
+                account_sid = 'DELETED'
+                auth_token = 'DELETED'
 
                 client = Client(account_sid, auth_token)
 
                 message = client.messages.create(
                             body='Hello From Health+, Your OTP is '+ OTP,
-                            from_='+17622310919',
+                            from_='DELETED',
                             to=DoctorCreate_srz.data['mobile']
                         )
 
@@ -268,14 +268,14 @@ def Create_Patient(request):
                 CurrentUser = request.user
                 OTP = CurrentUser.otp
 
-                account_sid = 'ACed031bba4f307f38d7bc646440dda43b'
-                auth_token = '332363210ae724feb2fc08b400d65deb'
+                account_sid = 'DELETED'
+                auth_token = 'DELETED'
 
                 client = Client(account_sid, auth_token)
 
                 message = client.messages.create(
                             body='Hello From Health+, Your OTP is '+ OTP,
-                            from_='+17622310919',
+                            from_='+DELETED',
                             to=PatientsCreate_srz.data['mobile']
                         )
 
