@@ -142,8 +142,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'Users.CustomUser'
 
-SOCIAL_AUTH_FACEBOOK_KEY = '351509633685414'
-SOCIAL_AUTH_FACEBOOK_SECRET = 'f73f40560620c4e38236440b66f875e4'
+SOCIAL_AUTH_FACEBOOK_KEY = 'DELETED'
+SOCIAL_AUTH_FACEBOOK_SECRET = 'DELETED'
 
 
 # Internationalization
@@ -176,8 +176,8 @@ django_heroku.settings(locals())
 # CLOUDINARY~CONFIGURATION
 cloudinary.config(
     cloud_name="clinichome",
-    api_key="837537839168758",
-    api_secret="WB0WhKwi1XfPK9SWwk-8b6Xp-ks"
+    api_key="DELETED",
+    api_secret="DELETED"
 )
 
 
@@ -186,5 +186,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'noone45787@gmail.com'
-EMAIL_HOST_PASSWORD = 'habzxfcjlcyabhlc'
+EMAIL_HOST_USER = 'DELETED'
+EMAIL_HOST_PASSWORD = 'DELETED'
